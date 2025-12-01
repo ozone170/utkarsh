@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 
 function RegisteredStudentsPage() {
@@ -8,6 +9,8 @@ function RegisteredStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
+  const [viewingCard, setViewingCard] = useState(null);
+  const cardRefs = useRef({});
 
   useEffect(() => {
     fetchStudents();
@@ -57,6 +60,58 @@ function RegisteredStudentsPage() {
       } catch (err) {
         alert('Failed to delete student');
       }
+    }
+  };
+
+  const downloadStudentCard = async (student) => {
+    const cardElement = cardRefs.current[student._id];
+    if (!cardElement) return;
+
+    try {
+      // Convert SVG to Canvas
+      const svgElement = cardElement.querySelector('svg');
+      if (svgElement) {
+        const svgData = new XMLSerializer().serializeToString(svgElement);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = svgUrl;
+        });
+        
+        const qrCanvas = document.createElement('canvas');
+        qrCanvas.width = 180;
+        qrCanvas.height = 180;
+        const ctx = qrCanvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 180, 180);
+        
+        const qrWrapper = svgElement.parentElement;
+        const originalSVG = svgElement;
+        qrWrapper.replaceChild(qrCanvas, svgElement);
+        
+        const html2canvas = (await import('html2canvas')).default;
+        const canvas = await html2canvas(cardElement, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          logging: false,
+          useCORS: true,
+          allowTaint: true
+        });
+        
+        qrWrapper.replaceChild(originalSVG, qrCanvas);
+        URL.revokeObjectURL(svgUrl);
+        
+        const link = document.createElement('a');
+        link.download = `${student.name.replace(/\s+/g, '_')}_ID_Card.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+      alert('Failed to download ID card. Please try again.');
     }
   };
 
@@ -161,52 +216,86 @@ function RegisteredStudentsPage() {
               <strong>Total Students: {filteredStudents.length}</strong>
               {searchTerm && <span style={{ marginLeft: '12px', color: 'var(--text-light)' }}>(filtered from {students.length})</span>}
             </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Event ID</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Branch</th>
-                    <th>Year</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents.map((student) => (
-                    <tr key={student._id}>
-                      <td style={{ fontWeight: '600' }}>{student.name}</td>
-                      <td><code style={{ background: 'var(--light)', padding: '4px 8px', borderRadius: '4px' }}>{student.eventId}</code></td>
-                      <td>{student.email}</td>
-                      <td>{student.phone}</td>
-                      <td>{student.branch}</td>
-                      <td>{student.year}</td>
-                      <td>{new Date(student.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button 
-                            onClick={() => setEditingStudent(student)} 
-                            className="btn btn-secondary" 
-                            style={{ padding: '6px 12px', fontSize: '14px' }}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteStudent(student._id)} 
-                            className="btn" 
-                            style={{ background: 'var(--danger)', color: 'white', padding: '6px 12px', fontSize: '14px' }}
-                          >
-                            🗑️ Delete
-                          </button>
+
+            {/* Card View */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
+              {filteredStudents.map((student) => (
+                <div key={student._id} style={{ position: 'relative' }}>
+                  {/* ID Card */}
+                  <div 
+                    ref={el => cardRefs.current[student._id] = el}
+                    style={{ 
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                      borderRadius: '16px', 
+                      padding: '24px',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Decorative Elements */}
+                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+                    <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+
+                    {/* Header */}
+                    <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
+                      <h3 style={{ fontSize: '24px', color: 'white', marginBottom: '4px', fontWeight: '700' }}>UTKARSH</h3>
+                      <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', margin: 0 }}>Fresher Event 2024</p>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ background: 'rgba(255,255,255,0.95)', padding: '20px', borderRadius: '12px', position: 'relative', zIndex: 1 }}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>{student.name}</div>
+                        <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: '600' }}>
+                          ID: {student.eventId}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+
+                      <div style={{ display: 'grid', gap: '10px', marginBottom: '16px', fontSize: '13px' }}>
+                        <div><strong>Email:</strong> {student.email}</div>
+                        <div><strong>Phone:</strong> {student.phone}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div><strong>Branch:</strong> {student.branch}</div>
+                          <div><strong>Year:</strong> {student.year}</div>
+                        </div>
+                        <div><strong>Registered:</strong> {new Date(student.createdAt).toLocaleDateString()}</div>
+                      </div>
+
+                      {/* QR Code */}
+                      <div style={{ textAlign: 'center', padding: '12px', background: 'white', borderRadius: '8px', border: '3px solid #667eea' }}>
+                        <QRCodeSVG value={student.eventId} size={120} level="H" />
+                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#6b7280', fontWeight: '600' }}>SCAN FOR ENTRY</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button 
+                      onClick={() => downloadStudentCard(student)} 
+                      className="btn btn-primary" 
+                      style={{ flex: 1, padding: '10px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      ⬇️ Download
+                    </button>
+                    <button 
+                      onClick={() => setEditingStudent(student)} 
+                      className="btn btn-secondary" 
+                      style={{ flex: 1, padding: '10px', fontSize: '14px' }}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteStudent(student._id)} 
+                      className="btn" 
+                      style={{ background: 'var(--danger)', color: 'white', padding: '10px', fontSize: '14px' }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         )}
