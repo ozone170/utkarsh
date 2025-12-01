@@ -41,82 +41,109 @@ function AdminDashboard() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>Admin Dashboard</h1>
-      
+    <div className="container" style={{ paddingTop: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '36px', color: 'white' }}>📊 Admin Dashboard</h1>
+        <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+          Logout
+        </button>
+      </div>
+
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px' }}>
+        <div className="stats-grid">
+          <div className="stat-card">
             <h3>Total Users</h3>
-            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.totalUsers}</p>
+            <p>{stats.totalUsers}</p>
           </div>
-          <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px' }}>
+          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
             <h3>Total Halls</h3>
-            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.totalHalls}</p>
+            <p>{stats.totalHalls}</p>
           </div>
-          <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px' }}>
+          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
             <h3>Food Today</h3>
-            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.foodClaimedToday}</p>
+            <p>{stats.foodClaimedToday}</p>
           </div>
-          <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px' }}>
+          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
             <h3>In Halls Now</h3>
-            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.currentlyInHalls}</p>
+            <p>{stats.currentlyInHalls}</p>
           </div>
         </div>
       )}
 
-      <h2>Create New Hall</h2>
-      <form onSubmit={handleCreateHall} style={{ marginBottom: '30px' }}>
-        <input
-          type="text"
-          placeholder="Hall Name"
-          value={newHall.name}
-          onChange={(e) => setNewHall({ ...newHall, name: e.target.value })}
-          required
-          style={{ padding: '10px', margin: '5px' }}
-        />
-        <input
-          type="text"
-          placeholder="Hall Code"
-          value={newHall.code}
-          onChange={(e) => setNewHall({ ...newHall, code: e.target.value })}
-          required
-          style={{ padding: '10px', margin: '5px' }}
-        />
-        <input
-          type="number"
-          placeholder="Capacity"
-          value={newHall.capacity}
-          onChange={(e) => setNewHall({ ...newHall, capacity: e.target.value })}
-          required
-          style={{ padding: '10px', margin: '5px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px', margin: '5px' }}>Create Hall</button>
-      </form>
+      <div className="card">
+        <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>🏛️ Create New Hall</h2>
+        <form onSubmit={handleCreateHall} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="Hall Name"
+            value={newHall.name}
+            onChange={(e) => setNewHall({ ...newHall, name: e.target.value })}
+            required
+            className="input"
+            style={{ flex: '1 1 200px' }}
+          />
+          <input
+            type="text"
+            placeholder="Hall Code"
+            value={newHall.code}
+            onChange={(e) => setNewHall({ ...newHall, code: e.target.value })}
+            required
+            className="input"
+            style={{ flex: '1 1 150px' }}
+          />
+          <input
+            type="number"
+            placeholder="Capacity"
+            value={newHall.capacity}
+            onChange={(e) => setNewHall({ ...newHall, capacity: e.target.value })}
+            required
+            className="input"
+            style={{ flex: '1 1 150px' }}
+          />
+          <button type="submit" className="btn btn-primary">Create Hall</button>
+        </form>
+      </div>
 
-      <h2>Halls</h2>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ background: '#f0f0f0' }}>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Name</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Code</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Capacity</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {halls.map((hall) => (
-            <tr key={hall._id}>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{hall.name}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{hall.code}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{hall.capacity}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                {hall.isActive ? 'Active' : 'Inactive'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card">
+        <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>📋 Halls List</h2>
+        {halls.length === 0 ? (
+          <p style={{ textAlign: 'center', color: 'var(--text-light)', padding: '40px' }}>
+            No halls created yet. Create your first hall above!
+          </p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Capacity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {halls.map((hall) => (
+                <tr key={hall._id}>
+                  <td>{hall.name}</td>
+                  <td><code style={{ background: 'var(--light)', padding: '4px 8px', borderRadius: '4px' }}>{hall.code}</code></td>
+                  <td>{hall.capacity}</td>
+                  <td>
+                    <span style={{ 
+                      background: hall.isActive ? 'var(--success)' : 'var(--danger)', 
+                      color: 'white', 
+                      padding: '4px 12px', 
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '600'
+                    }}>
+                      {hall.isActive ? '✓ Active' : '✗ Inactive'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

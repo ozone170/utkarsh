@@ -4,15 +4,50 @@ function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ textAlign: 'center', padding: '50px' }}>
-      <h1>Welcome to Utkarsh Fresher Manager</h1>
-      <p>Event management system for student registration and tracking</p>
-      <button onClick={() => navigate('/register')} style={{ padding: '10px 20px', fontSize: '16px', margin: '10px' }}>
-        Register Now
-      </button>
-      <button onClick={() => navigate('/login')} style={{ padding: '10px 20px', fontSize: '16px', margin: '10px' }}>
-        Admin/Scanner Login
-      </button>
+    <div className="container" style={{ textAlign: 'center', paddingTop: '60px' }}>
+      <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '48px', marginBottom: '16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Utkarsh Fresher Manager
+        </h1>
+        <p style={{ fontSize: '18px', color: 'var(--text-light)', marginBottom: '32px' }}>
+          Modern event management system for student registration and tracking
+        </p>
+        
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/register')} className="btn btn-primary">
+            🎓 Register as Student
+          </button>
+          <button onClick={() => navigate('/login')} className="btn btn-secondary">
+            🔐 Admin/Scanner Login
+          </button>
+        </div>
+
+        <div className="credentials-box" style={{ marginTop: '40px' }}>
+          <h3>🔑 Demo Credentials</h3>
+          <div className="credential-item">
+            <strong>Admin Access</strong>
+            <div>Email: <code>admin@utkarsh.com</code></div>
+            <div>Password: <code>admin123</code></div>
+          </div>
+          <div className="credential-item">
+            <strong>Scanner Access</strong>
+            <div>Email: <code>scanner@utkarsh.com</code></div>
+            <div>Password: <code>scanner123</code></div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '32px', padding: '20px', background: 'var(--light)', borderRadius: '12px' }}>
+          <h3 style={{ marginBottom: '12px', color: 'var(--dark)' }}>✨ Features</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', textAlign: 'left' }}>
+            <div>📝 Student Registration</div>
+            <div>🏛️ Hall Tracking</div>
+            <div>🍽️ Food Distribution</div>
+            <div>📊 Admin Dashboard</div>
+            <div>📱 QR Code Scanning</div>
+            <div>📈 Real-time Stats</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 
 function RegisterPage() {
@@ -28,68 +28,92 @@ function RegisterPage() {
 
   if (registered) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <h2>Registration Successful!</h2>
-        <p>Your Event ID: <strong>{eventId}</strong></p>
-        <div style={{ margin: '20px' }}>
-          <QRCode value={eventId} size={256} />
+      <div className="container" style={{ paddingTop: '60px' }}>
+        <div className="card" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+          <h2 style={{ fontSize: '32px', marginBottom: '16px', color: 'var(--success)' }}>Registration Successful!</h2>
+          <p style={{ fontSize: '18px', color: 'var(--text-light)', marginBottom: '24px' }}>
+            Your Event ID: <strong style={{ color: 'var(--primary)', fontSize: '24px' }}>{eventId}</strong>
+          </p>
+          <div style={{ background: 'white', padding: '24px', borderRadius: '12px', display: 'inline-block', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <QRCodeSVG value={eventId} size={256} />
+          </div>
+          <p style={{ marginTop: '24px', color: 'var(--text-light)' }}>
+            📱 Save this QR code for event entry
+          </p>
+          <button onClick={() => window.location.href = '/'} className="btn btn-primary" style={{ marginTop: '24px' }}>
+            ← Back to Home
+          </button>
         </div>
-        <p>Save this QR code for event entry</p>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2>Student Registration</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-          style={{ width: '100%', padding: '10px', margin: '5px 0' }}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-          style={{ width: '100%', padding: '10px', margin: '5px 0' }}
-        />
-        <input
-          type="tel"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          required
-          style={{ width: '100%', padding: '10px', margin: '5px 0' }}
-        />
-        <input
-          type="text"
-          placeholder="Branch"
-          value={formData.branch}
-          onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-          required
-          style={{ width: '100%', padding: '10px', margin: '5px 0' }}
-        />
-        <input
-          type="number"
-          placeholder="Year"
-          value={formData.year}
-          onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-          min="1"
-          max="4"
-          required
-          style={{ width: '100%', padding: '10px', margin: '5px 0' }}
-        />
-        <button type="submit" style={{ width: '100%', padding: '10px', margin: '10px 0' }}>
-          Register
-        </button>
-      </form>
+    <div className="container" style={{ paddingTop: '60px' }}>
+      <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '32px', marginBottom: '8px', color: 'var(--dark)' }}>🎓 Student Registration</h2>
+          <p style={{ color: 'var(--text-light)' }}>Fill in your details to get your event QR code</p>
+        </div>
+
+        {error && <div className="alert alert-error">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+            className="input"
+          />
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+            className="input"
+          />
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            required
+            className="input"
+          />
+          <input
+            type="text"
+            placeholder="Branch (e.g., Computer Science)"
+            value={formData.branch}
+            onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+            required
+            className="input"
+          />
+          <select
+            value={formData.year}
+            onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+            required
+            className="input"
+          >
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px' }}>
+            Register Now
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <button onClick={() => window.location.href = '/'} className="btn" style={{ background: 'transparent', color: 'var(--primary)' }}>
+            ← Back to Home
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

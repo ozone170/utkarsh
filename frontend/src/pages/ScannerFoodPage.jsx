@@ -37,25 +37,33 @@ function ScannerFoodPage() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Food Scanner</h1>
-      <p>Scan student QR code to verify food eligibility</p>
-      
-      <div id="reader" style={{ marginTop: '20px' }}></div>
-      
-      {message && (
-        <div style={{
-          padding: '15px',
-          marginTop: '20px',
-          background: message.startsWith('✓') ? '#d4edda' : '#f8d7da',
-          border: `1px solid ${message.startsWith('✓') ? '#c3e6cb' : '#f5c6cb'}`,
-          borderRadius: '5px',
-          fontSize: '18px',
-          textAlign: 'center'
-        }}>
-          {message}
+    <div className="container" style={{ paddingTop: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '36px', color: 'white' }}>🍽️ Food Scanner</h1>
+        <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+          Logout
+        </button>
+      </div>
+
+      <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>Scan for Food Distribution</h2>
+        <p style={{ color: 'var(--text-light)', marginBottom: '24px' }}>
+          Scan student QR code to verify food eligibility (one-time per day)
+        </p>
+        
+        <div style={{ padding: '20px', background: 'var(--light)', borderRadius: '12px' }}>
+          <p style={{ textAlign: 'center', color: 'var(--text-light)', marginBottom: '16px' }}>
+            📱 Scan student QR code
+          </p>
+          <div id="reader" style={{ borderRadius: '8px', overflow: 'hidden' }}></div>
         </div>
-      )}
+        
+        {message && (
+          <div className={`alert ${message.startsWith('✓') ? 'alert-success' : 'alert-error'}`} style={{ marginTop: '20px', fontSize: '18px', textAlign: 'center' }}>
+            {message}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
