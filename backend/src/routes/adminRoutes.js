@@ -1,5 +1,5 @@
 import express from 'express';
-import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer } from '../controllers/adminController.js';
+import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer, getAllStudents, updateStudent, deleteStudent, getFoodClaims } from '../controllers/adminController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 
@@ -11,5 +11,9 @@ router.post('/volunteers', authMiddleware, roleMiddleware('ADMIN'), createVolunt
 router.get('/volunteers', authMiddleware, roleMiddleware('ADMIN'), getVolunteers);
 router.put('/volunteers/:volunteerId', authMiddleware, roleMiddleware('ADMIN'), updateVolunteer);
 router.delete('/volunteers/:volunteerId', authMiddleware, roleMiddleware('ADMIN'), deleteVolunteer);
+router.get('/students', authMiddleware, roleMiddleware('ADMIN'), getAllStudents);
+router.put('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), updateStudent);
+router.delete('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), deleteStudent);
+router.get('/food-claims', authMiddleware, roleMiddleware('ADMIN'), getFoodClaims);
 
 export default router;

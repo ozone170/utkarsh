@@ -18,6 +18,13 @@ function LoginPage() {
       
       if (response.data.role === 'ADMIN') {
         navigate('/admin');
+      } else if (response.data.role === 'VOLUNTEER' && response.data.assignedHall) {
+        // Check if assigned hall is a food counter
+        if (response.data.assignedHall.isFoodCounter) {
+          navigate('/scanner/food');
+        } else {
+          navigate('/scanner/hall');
+        }
       } else {
         navigate('/scanner/hall');
       }

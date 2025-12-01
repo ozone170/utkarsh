@@ -25,3 +25,6 @@ Thumbs.db
 
 # Docker
 mongo_data/
+
+# Documentation (moved to utkarsh folder)
+/*.md

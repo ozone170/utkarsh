@@ -4,7 +4,7 @@ import axios from '../api/axios';
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [halls, setHalls] = useState([]);
-  const [newHall, setNewHall] = useState({ name: '', code: '', capacity: '' });
+  const [newHall, setNewHall] = useState({ name: '', code: '', capacity: '', isFoodCounter: false });
   const [volunteers, setVolunteers] = useState([]);
   const [newVolunteer, setNewVolunteer] = useState({ name: '', email: '', password: '', assignedHall: '' });
   const [showVolunteerForm, setShowVolunteerForm] = useState(false);
@@ -38,7 +38,7 @@ function AdminDashboard() {
     e.preventDefault();
     try {
       await axios.post('/api/halls', newHall);
-      setNewHall({ name: '', code: '', capacity: '' });
+      setNewHall({ name: '', code: '', capacity: '', isFoodCounter: false });
       fetchHalls();
     } catch (err) {
       alert('Failed to create hall');
@@ -126,59 +126,109 @@ function AdminDashboard() {
 
       {stats && (
         <div className="stats-grid">
-          <div className="stat-card">
+          <div 
+            className="stat-card" 
+            onClick={() => window.location.href = '/admin/students'}
+            style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <h3>Registered Students</h3>
             <p>{stats.totalUsers}</p>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view all →</div>
           </div>
-          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+          <div 
+            className="stat-card" 
+            onClick={() => window.location.href = '/admin/halls'}
+            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <h3>Total Halls</h3>
             <p>{stats.totalHalls}</p>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view all →</div>
           </div>
-          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+          <div 
+            className="stat-card" 
+            onClick={() => window.location.href = '/admin/food-claims'}
+            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <h3>Food Today</h3>
             <p>{stats.foodClaimedToday}</p>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view claims →</div>
           </div>
-          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
+          <div 
+            className="stat-card" 
+            onClick={() => window.location.href = '/admin/hall-occupancy'}
+            style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <h3>In Halls Now</h3>
             <p>{stats.currentlyInHalls}</p>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view occupancy →</div>
           </div>
-          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
+          <div 
+            className="stat-card" 
+            onClick={() => window.location.href = '/admin/volunteers'}
+            style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <h3>Total Volunteers</h3>
             <p>{volunteers.length}</p>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view all →</div>
           </div>
         </div>
       )}
 
       <div className="card">
         <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>🏛️ Create New Hall</h2>
-        <form onSubmit={handleCreateHall} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            placeholder="Hall Name"
-            value={newHall.name}
-            onChange={(e) => setNewHall({ ...newHall, name: e.target.value })}
-            required
-            className="input"
-            style={{ flex: '1 1 200px' }}
-          />
-          <input
-            type="text"
-            placeholder="Hall Code"
-            value={newHall.code}
-            onChange={(e) => setNewHall({ ...newHall, code: e.target.value })}
-            required
-            className="input"
-            style={{ flex: '1 1 150px' }}
-          />
-          <input
-            type="number"
-            placeholder="Capacity"
-            value={newHall.capacity}
-            onChange={(e) => setNewHall({ ...newHall, capacity: e.target.value })}
-            required
-            className="input"
-            style={{ flex: '1 1 150px' }}
-          />
+        <form onSubmit={handleCreateHall} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: '1 1 200px' }}>
+            <input
+              type="text"
+              placeholder="Hall Name"
+              value={newHall.name}
+              onChange={(e) => setNewHall({ ...newHall, name: e.target.value })}
+              required
+              className="input"
+            />
+          </div>
+          <div style={{ flex: '1 1 150px' }}>
+            <input
+              type="text"
+              placeholder="Hall Code"
+              value={newHall.code}
+              onChange={(e) => setNewHall({ ...newHall, code: e.target.value })}
+              required
+              className="input"
+            />
+          </div>
+          <div style={{ flex: '1 1 150px' }}>
+            <input
+              type="number"
+              placeholder="Capacity"
+              value={newHall.capacity}
+              onChange={(e) => setNewHall({ ...newHall, capacity: e.target.value })}
+              required
+              className="input"
+            />
+          </div>
+          <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--light)', borderRadius: '8px' }}>
+            <input
+              type="checkbox"
+              id="isFoodCounter"
+              checked={newHall.isFoodCounter || false}
+              onChange={(e) => setNewHall({ ...newHall, isFoodCounter: e.target.checked })}
+              style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+            />
+            <label htmlFor="isFoodCounter" style={{ cursor: 'pointer', fontWeight: '600', whiteSpace: 'nowrap' }}>
+              🍽️ Food Counter
+            </label>
+          </div>
           <button type="submit" className="btn btn-primary">Create Hall</button>
         </form>
       </div>
@@ -206,16 +256,30 @@ function AdminDashboard() {
                   <td><code style={{ background: 'var(--light)', padding: '4px 8px', borderRadius: '4px' }}>{hall.code}</code></td>
                   <td>{hall.capacity}</td>
                   <td>
-                    <span style={{ 
-                      background: hall.isActive ? 'var(--success)' : 'var(--danger)', 
-                      color: 'white', 
-                      padding: '4px 12px', 
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      fontWeight: '600'
-                    }}>
-                      {hall.isActive ? '✓ Active' : '✗ Inactive'}
-                    </span>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ 
+                        background: hall.isActive ? 'var(--success)' : 'var(--danger)', 
+                        color: 'white', 
+                        padding: '4px 12px', 
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>
+                        {hall.isActive ? '✓ Active' : '✗ Inactive'}
+                      </span>
+                      {hall.isFoodCounter && (
+                        <span style={{ 
+                          background: 'var(--warning)', 
+                          color: 'white', 
+                          padding: '4px 12px', 
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}>
+                          🍽️ Food Counter
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

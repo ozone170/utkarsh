@@ -130,3 +130,71 @@ export const deleteVolunteer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAllStudents = async (req, res) => {
+  try {
+    const students = await User.find().sort({ createdAt: -1 });
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getFoodClaims = async (req, res) => {
+  try {
+    const { date } = req.query;
+    const query = date ? { date } : { date: new Date().toISOString().split('T')[0] };
+    
+    const claims = await FoodLog.find(query)
+      .populate('userId', 'name email eventId branch year')
+      .sort({ time: -1 });
+    
+    res.json(claims);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { name, email, phone, branch, year } = req.body;
+    
+    const student = await User.findByIdAndUpdate(
+      studentId,
+      { name, email, phone, branch, year },
+      { new: true, runValidators: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.json(student);
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    
+    const student = await User.findByIdAndDelete(studentId);
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Also delete related logs
+    await HallLog.deleteMany({ userId: studentId });
+    await FoodLog.deleteMany({ userId: studentId });
+
+    res.json({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

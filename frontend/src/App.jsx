@@ -7,6 +7,10 @@ import ScannerHallPage from './pages/ScannerHallPage';
 import ScannerFoodPage from './pages/ScannerFoodPage';
 import ScanResultPage from './pages/ScanResultPage';
 import HallOccupancyPage from './pages/HallOccupancyPage';
+import RegisteredStudentsPage from './pages/RegisteredStudentsPage';
+import HallsListPage from './pages/HallsListPage';
+import FoodClaimsPage from './pages/FoodClaimsPage';
+import VolunteersListPage from './pages/VolunteersListPage';
 
 function App() {
   return (
@@ -20,6 +24,10 @@ function App() {
         <Route path="/scanner/food" element={<ScannerFoodPage />} />
         <Route path="/scan-result" element={<ScanResultPage />} />
         <Route path="/admin/hall-occupancy" element={<HallOccupancyPage />} />
+        <Route path="/admin/students" element={<RegisteredStudentsPage />} />
+        <Route path="/admin/halls" element={<HallsListPage />} />
+        <Route path="/admin/food-claims" element={<FoodClaimsPage />} />
+        <Route path="/admin/volunteers" element={<VolunteersListPage />} />
       </Routes>
     </BrowserRouter>
   );
