@@ -26,15 +26,7 @@ function LoginPage() {
     }
   };
 
-  const quickLogin = (role) => {
-    if (role === 'admin') {
-      setEmail('admin@utkarsh.com');
-      setPassword('admin123');
-    } else {
-      setEmail('scanner@utkarsh.com');
-      setPassword('scanner123');
-    }
-  };
+
 
   return (
     <div className="container" style={{ paddingTop: '60px' }}>
@@ -68,37 +60,7 @@ function LoginPage() {
           </button>
         </form>
 
-        <div className="credentials-box" style={{ marginTop: '24px' }}>
-          <h3>Quick Login</h3>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-            <button 
-              onClick={() => quickLogin('admin')} 
-              className="btn btn-secondary"
-              style={{ flex: 1 }}
-              type="button"
-            >
-              👨‍💼 Admin
-            </button>
-            <button 
-              onClick={() => quickLogin('scanner')} 
-              className="btn btn-secondary"
-              style={{ flex: 1 }}
-              type="button"
-            >
-              📱 Scanner
-            </button>
-          </div>
-          <div style={{ marginTop: '16px', fontSize: '14px', opacity: 0.9 }}>
-            <div className="credential-item">
-              <strong>Admin</strong>
-              <div>admin@utkarsh.com / admin123</div>
-            </div>
-            <div className="credential-item">
-              <strong>Scanner</strong>
-              <div>scanner@utkarsh.com / scanner123</div>
-            </div>
-          </div>
-        </div>
+
 
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <button onClick={() => navigate('/')} className="btn" style={{ background: 'transparent', color: 'var(--primary)' }}>

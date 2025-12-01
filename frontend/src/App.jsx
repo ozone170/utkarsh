@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ScannerHallPage from './pages/ScannerHallPage';
 import ScannerFoodPage from './pages/ScannerFoodPage';
+import ScanResultPage from './pages/ScanResultPage';
+import HallOccupancyPage from './pages/HallOccupancyPage';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/scanner/hall" element={<ScannerHallPage />} />
         <Route path="/scanner/food" element={<ScannerFoodPage />} />
+        <Route path="/scan-result" element={<ScanResultPage />} />
+        <Route path="/admin/hall-occupancy" element={<HallOccupancyPage />} />
       </Routes>
     </BrowserRouter>
   );

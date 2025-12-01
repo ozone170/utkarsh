@@ -22,19 +22,7 @@ function LandingPage() {
           </button>
         </div>
 
-        <div className="credentials-box" style={{ marginTop: '40px' }}>
-          <h3>🔑 Demo Credentials</h3>
-          <div className="credential-item">
-            <strong>Admin Access</strong>
-            <div>Email: <code>admin@utkarsh.com</code></div>
-            <div>Password: <code>admin123</code></div>
-          </div>
-          <div className="credential-item">
-            <strong>Scanner Access</strong>
-            <div>Email: <code>scanner@utkarsh.com</code></div>
-            <div>Password: <code>scanner123</code></div>
-          </div>
-        </div>
+
 
         <div style={{ marginTop: '32px', padding: '20px', background: 'var(--light)', borderRadius: '12px' }}>
           <h3 style={{ marginBottom: '12px', color: 'var(--dark)' }}>✨ Features</h3>
