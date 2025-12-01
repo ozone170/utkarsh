@@ -4,7 +4,8 @@ Welcome to the Utkarsh Fresher Manager documentation! This index will help you f
 
 ## 🚀 Getting Started
 
-- **[QUICK_START.md](QUICK_START.md)** - Get running in 3 steps (START HERE!)
+- **[WINDOWS_SETUP.md](WINDOWS_SETUP.md)** - Windows setup without Docker (START HERE for Windows!)
+- **[QUICK_START.md](QUICK_START.md)** - Quick start with Docker
 - **[README.md](README.md)** - Project overview and basic setup
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Complete technical overview
 

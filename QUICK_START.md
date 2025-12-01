@@ -2,19 +2,43 @@
 
 ## 🚀 Get Running in 3 Steps
 
-### Step 1: Start Backend + Database
+### Windows Users Without Docker?
+👉 **See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for detailed Windows setup!**
+
+### With Docker
+
+#### Step 1: Start Backend + Database
 ```bash
 docker-compose up --build
 ```
 
-### Step 2: Create Admin User
+#### Step 2: Create Admin User
 ```bash
 docker exec -it utkarsh-backend npm run seed
 ```
 
-### Step 3: Start Frontend
+#### Step 3: Start Frontend
 ```bash
 cd frontend
+npm run dev
+```
+
+### Without Docker (Manual Setup)
+
+#### Step 1: Start Backend
+```bash
+cd backend
+npm install
+npm run seed
+npm run dev
+```
+
+**Note**: Requires MongoDB. Use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (free) or install locally.
+
+#### Step 2: Start Frontend (New Terminal)
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 

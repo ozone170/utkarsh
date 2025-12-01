@@ -16,9 +16,26 @@ Event management system for tracking student registration, hall movement, and fo
 
 ## Quick Start
 
-See [QUICK_START.md](QUICK_START.md) for the fastest way to get running!
+### Windows Users (No Docker)
+See **[WINDOWS_SETUP.md](WINDOWS_SETUP.md)** for step-by-step Windows setup!
 
-### Using Docker (Recommended)
+Quick version:
+```bash
+# Terminal 1: Backend
+cd backend
+npm install
+npm run seed
+npm run dev
+
+# Terminal 2: Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+**Note**: You'll need MongoDB. Use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (free cloud option) or install locally. See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for details.
+
+### Using Docker (If Installed)
 ```bash
 # Start backend + MongoDB
 docker-compose up --build
@@ -35,24 +52,6 @@ npm run dev
 Access:
 - Frontend: http://localhost:5173
 - Backend: http://localhost:5000
-- MongoDB: mongodb://localhost:27017/utkarsh
-
-### Manual Setup
-```bash
-# Terminal 1: Start MongoDB
-mongod
-
-# Terminal 2: Backend
-cd backend
-npm install
-npm run seed
-npm run dev
-
-# Terminal 3: Frontend
-cd frontend
-npm install
-npm run dev
-```
 
 ## Default Credentials
 - Admin: admin@utkarsh.com / admin123
