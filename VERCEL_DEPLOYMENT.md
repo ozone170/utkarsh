@@ -98,11 +98,11 @@ Root Directory:      frontend
 
 **Variable 1:**
 - Name: `VITE_API_BASE_URL`
-- Value: `https://utkarsh-backend.onrender.com`
+- Value: `https://utkarsh-backend.onrender.com/`
 - Environment: **Production** (check this)
 
 **Important Notes**:
-- ✅ No trailing slash: `https://utkarsh-backend.onrender.com`
+- ✅ Include trailing slash: `https://utkarsh-backend.onrender.com/`
 - ✅ Use your actual Render backend URL
 - ✅ Must start with `VITE_` for Vite to expose it
 
@@ -467,7 +467,7 @@ Add your custom domain to `allowedOrigins`:
 
 ### Vercel (Frontend)
 ```
-VITE_API_BASE_URL=https://utkarsh-backend.onrender.com
+VITE_API_BASE_URL=https://utkarsh-backend.onrender.com/
 ```
 
 ### Render (Backend)
