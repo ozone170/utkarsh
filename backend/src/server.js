@@ -19,7 +19,7 @@ connectDB();
 const allowedOrigins = [
   'http://localhost:5173',           // Local development
   'http://localhost:5174',           // Alternative local port
-  'https://utkarsh-frontend.vercel.app',  // Production (update with your actual Vercel URL)
+  'https://utkarsh-ashen.vercel.app', // Production Vercel URL
   process.env.FRONTEND_URL           // Dynamic frontend URL from env
 ].filter(Boolean);
 
@@ -40,7 +40,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({ message: 'Utkarsh API is running' });
 });
 
