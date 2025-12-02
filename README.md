@@ -250,7 +250,7 @@ After seeding:
 - `DELETE /api/admin/volunteers/:volunteerId` - Delete volunteer
 - `GET /api/admin/food-claims` - Food claims by date
 
-## 🐳 Docker Deployment
+## 🐳 Docker Deployment (Local)
 
 ```bash
 # Start all services
@@ -262,6 +262,25 @@ docker-compose down
 # View logs
 docker-compose logs -f
 ```
+
+## 🚀 Production Deployment
+
+### Quick Deploy
+
+**Backend** (Render.com):
+1. Create MongoDB Atlas cluster
+2. Get connection string
+3. Deploy to Render with environment variables
+4. Backend URL: `https://your-app.onrender.com`
+
+**Frontend** (Vercel):
+1. Update `VITE_API_BASE_URL` with backend URL
+2. Deploy to Vercel
+3. Frontend URL: `https://your-app.vercel.app`
+
+**Detailed Instructions**: See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+
+**Deployment Checklist**: See [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md)
 
 ## 🧪 Testing
 
