@@ -86,7 +86,7 @@ function ScannerFoodPage() {
     <div className="container" style={{ paddingTop: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <h1 style={{ fontSize: '36px', color: 'white' }}>🍽️ Food Scanner</h1>
-        <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+        <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
           Logout
         </button>
       </div>

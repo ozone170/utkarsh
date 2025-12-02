@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [halls, setHalls] = useState([]);
   const [newHall, setNewHall] = useState({ name: '', code: '', capacity: '', isFoodCounter: false });
@@ -115,10 +117,10 @@ function AdminDashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
         <h1 style={{ fontSize: '36px', color: 'white' }}>📊 Admin Dashboard</h1>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => window.location.href = '/admin/hall-occupancy'} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+          <button onClick={() => navigate('/admin/hall-occupancy')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
             🏛️ View Occupancy
           </button>
-          <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
+          <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
             Logout
           </button>
         </div>
@@ -128,7 +130,7 @@ function AdminDashboard() {
         <div className="stats-grid">
           <div 
             className="stat-card" 
-            onClick={() => window.location.href = '/admin/students'}
+            onClick={() => navigate('/admin/students')}
             style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -139,7 +141,7 @@ function AdminDashboard() {
           </div>
           <div 
             className="stat-card" 
-            onClick={() => window.location.href = '/admin/halls'}
+            onClick={() => navigate('/admin/halls')}
             style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -150,7 +152,7 @@ function AdminDashboard() {
           </div>
           <div 
             className="stat-card" 
-            onClick={() => window.location.href = '/admin/food-claims'}
+            onClick={() => navigate('/admin/food-claims')}
             style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -161,7 +163,7 @@ function AdminDashboard() {
           </div>
           <div 
             className="stat-card" 
-            onClick={() => window.location.href = '/admin/hall-occupancy'}
+            onClick={() => navigate('/admin/hall-occupancy')}
             style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -172,7 +174,7 @@ function AdminDashboard() {
           </div>
           <div 
             className="stat-card" 
-            onClick={() => window.location.href = '/admin/volunteers'}
+            onClick={() => navigate('/admin/volunteers')}
             style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}

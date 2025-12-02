@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 import './RegisterPage.css';
 
 function RegisterPage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -226,7 +228,7 @@ function RegisterPage() {
             </button>
             
             <button 
-              onClick={() => window.location.href = '/'} 
+              onClick={() => navigate('/')} 
               className="btn btn-secondary download-btn"
             >
               ← Back to Home
@@ -303,7 +305,7 @@ function RegisterPage() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <button onClick={() => window.location.href = '/'} className="btn" style={{ background: 'transparent', color: 'var(--primary)' }}>
+          <button onClick={() => navigate('/')} className="btn" style={{ background: 'transparent', color: 'var(--primary)' }}>
             ← Back to Home
           </button>
         </div>

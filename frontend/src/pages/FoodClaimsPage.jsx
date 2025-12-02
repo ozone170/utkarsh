@@ -33,7 +33,7 @@ function FoodClaimsPage() {
           <button onClick={() => navigate('/admin')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
             ← Back to Dashboard
           </button>
-          <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
+          <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
             Logout
           </button>
         </div>
