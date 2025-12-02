@@ -282,6 +282,8 @@ docker-compose logs -f
 
 **Deployment Checklist**: See [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md)
 
+**Database Seeding**: Use `npm run seed` locally or see deployment guide for production seeding
+
 ## 🧪 Testing
 
 ```bash

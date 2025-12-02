@@ -174,25 +174,26 @@ Visit: `https://utkarsh-backend.onrender.com`
 
 Should see: `{"message":"Utkarsh API is running"}`
 
-### Step 7: Seed Database via HTTP Endpoint
+### Step 7: Seed Database
 
-**⚠️ Important**: Render free tier doesn't provide shell access, so we use a temporary HTTP endpoint.
+**Option 1: Local Seeding (Recommended)**
+1. Update local `.env` with production MongoDB URI temporarily
+2. Run: `npm run seed`
+3. Restore local `.env`
 
-1. **Call seed endpoint**:
-   - Visit: `https://utkarsh-backend.onrender.com/seed`
-   - Should see success message with created users
+**Option 2: MongoDB Atlas Direct**
+1. Go to MongoDB Atlas → Browse Collections
+2. Select `adminusers` collection
+3. Insert documents manually with bcrypt hashed passwords
 
-2. **Verify seeding**:
-   - Admin: `admin@utkarsh.com` / `admin123`
-   - Scanner: `scanner@utkarsh.com` / `scanner123`
+**Option 3: Temporary HTTP Endpoint**
+If you need a one-time HTTP endpoint for seeding:
+1. See [SEED_ENDPOINT_GUIDE.md](SEED_ENDPOINT_GUIDE.md) for instructions
+2. **Important**: Remove endpoint immediately after use
 
-3. **Remove seed endpoint** (CRITICAL!):
-   - Delete `backend/src/routes/seedRoute.js`
-   - Remove seed route import and usage from `backend/src/server.js`
-   - Commit and push changes
-   - Wait for redeployment
-
-**Detailed Instructions**: See [SEED_ENDPOINT_GUIDE.md](SEED_ENDPOINT_GUIDE.md)
+**Default Credentials**:
+- Admin: `admin@utkarsh.com` / `admin123`
+- Scanner: `scanner@utkarsh.com` / `scanner123`
 
 ---
 

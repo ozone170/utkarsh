@@ -7,7 +7,6 @@ import userRoutes from './routes/userRoutes.js';
 import hallRoutes from './routes/hallRoutes.js';
 import scanRoutes from './routes/scanRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-import seedRoute from './routes/seedRoute.js';
 
 dotenv.config();
 
@@ -22,10 +21,6 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Utkarsh API is running' });
 });
-
-// ⚠️ TEMPORARY: Seed endpoint for production deployment
-// Remove this route after initial database seeding
-app.use('/seed', seedRoute);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
