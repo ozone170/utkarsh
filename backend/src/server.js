@@ -17,10 +17,11 @@ connectDB();
 
 // CORS Configuration
 const allowedOrigins = [
-  'http://localhost:5173',           // Local development
-  'http://localhost:5174',           // Alternative local port
-  'https://utkarsh-ashen.vercel.app', // Production Vercel URL
-  process.env.FRONTEND_URL           // Dynamic frontend URL from env
+  'http://localhost:5173',            // Local development
+  'http://localhost:5174',            // Alternative local port
+  'https://utkarsh-ashen.vercel.app', // Production Vercel URL (old)
+  'https://utkarsh-eta.vercel.app',   // Production Vercel URL (new)
+  process.env.FRONTEND_URL            // Dynamic frontend URL from env
 ].filter(Boolean);
 
 app.use(cors({
