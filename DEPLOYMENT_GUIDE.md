@@ -174,6 +174,26 @@ Visit: `https://utkarsh-backend.onrender.com`
 
 Should see: `{"message":"Utkarsh API is running"}`
 
+### Step 7: Seed Database via HTTP Endpoint
+
+**⚠️ Important**: Render free tier doesn't provide shell access, so we use a temporary HTTP endpoint.
+
+1. **Call seed endpoint**:
+   - Visit: `https://utkarsh-backend.onrender.com/seed`
+   - Should see success message with created users
+
+2. **Verify seeding**:
+   - Admin: `admin@utkarsh.com` / `admin123`
+   - Scanner: `scanner@utkarsh.com` / `scanner123`
+
+3. **Remove seed endpoint** (CRITICAL!):
+   - Delete `backend/src/routes/seedRoute.js`
+   - Remove seed route import and usage from `backend/src/server.js`
+   - Commit and push changes
+   - Wait for redeployment
+
+**Detailed Instructions**: See [SEED_ENDPOINT_GUIDE.md](SEED_ENDPOINT_GUIDE.md)
+
 ---
 
 ## Phase D4: Deploy Frontend to Vercel
