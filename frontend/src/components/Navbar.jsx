@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './Navbar.css';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -8,75 +8,72 @@ function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/landing');
+    navigate("/landing");
   };
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <div className="navbar-logo" onClick={() => navigate('/landing')}>
-          <img 
-            src="/logo.jpg" 
-            alt="UTKARSH Logo" 
+        <div className="navbar-logo" onClick={() => navigate("/landing")}>
+          <img
+            src="/logo.jpg"
+            alt="UTKARSH Logo"
             className="navbar-logo-img"
             onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'block';
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "block";
             }}
           />
-          <div className="navbar-logo-text" style={{ display: 'none' }}>
+          <div className="navbar-logo-text" style={{ display: "none" }}>
             <span className="navbar-logo-title">UTKARSH</span>
             <span className="navbar-logo-subtitle">2025</span>
           </div>
         </div>
-        
+
         <div className="navbar-links">
-          <button 
-            onClick={() => navigate('/landing')} 
-            className="navbar-link"
-          >
-            🏠 Landing Page
+          <button onClick={() => navigate("/landing")} className="navbar-link">
+            Landing Page
           </button>
 
-          {user?.role === 'ADMIN' && (
+          {user?.role === "ADMIN" && (
             <>
-              <button 
-                onClick={() => navigate('/admin')} 
+              <button
+                onClick={() => navigate("/admin")}
                 className="navbar-link"
               >
-                📊 Dashboard
+                Dashboard
               </button>
-              <button 
-                onClick={() => navigate('/admin/hall-occupancy')} 
+              <button
+                onClick={() => navigate("/admin/hall-occupancy")}
                 className="navbar-link"
               >
-                🏛️ View Occupancy
+                View Occupancy
               </button>
             </>
           )}
 
-          {(user?.role === 'SCANNER' || user?.role === 'VOLUNTEER') && (
-            <button 
-              onClick={() => navigate('/scanner/hall')} 
+          {(user?.role === "SCANNER" || user?.role === "VOLUNTEER") && (
+            <button
+              onClick={() => navigate("/scanner/hall")}
               className="navbar-link"
             >
-              📱 Scan
+              Scan
             </button>
           )}
 
           {user ? (
-            <button 
-              onClick={handleLogout} 
+            <button
+              onClick={handleLogout}
               className="navbar-link navbar-logout"
             >
-              🚪 Logout
+              Logout
             </button>
           ) : (
-            <button 
-              onClick={() => navigate('/login')} 
+            <button
+              onClick={() => navigate("/login")}
               className="navbar-link navbar-login"
             >
-              🔐 Login
+              Login
             </button>
           )}
         </div>
