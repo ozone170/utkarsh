@@ -199,14 +199,15 @@ export const createStudent = async (req, res) => {
         actorId: req.user.id,
         actorName: req.user.name || 'Admin',
         actorRole: req.user.role,
-        action: 'ADMIN_CREATE_STUDENT',
+        action: 'STUDENT_CREATE',
         resource: 'User',
         resourceId: user._id,
         details: {
           studentName: name,
           studentEmail: email,
           studentPhone: phone,
-          studentEventId: eventId
+          studentEventId: eventId,
+          createdBy: 'ADMIN'
         },
         ipAddress: req.ip
       });
