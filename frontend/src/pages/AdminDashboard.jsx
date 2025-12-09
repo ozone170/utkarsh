@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
+import Navbar from '../components/Navbar';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -113,18 +114,23 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="container" style={{ paddingTop: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
-        <h1 style={{ fontSize: '36px', color: 'white' }}>📊 Admin Dashboard</h1>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => navigate('/admin/hall-occupancy')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
-            🏛️ View Occupancy
-          </button>
-          <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
-            Logout
-          </button>
+    <>
+      <Navbar />
+      <div className="container" style={{ paddingTop: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
+          <h1 style={{ fontSize: '36px', color: 'white' }}>📊 Admin Dashboard</h1>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button onClick={() => navigate('/')} className="btn" style={{ background: 'linear-gradient(135deg, #0ea5ff 0%, #06b6d4 100%)', color: 'white', border: 'none' }}>
+              🏠 Landing Page
+            </button>
+            <button onClick={() => navigate('/admin/hall-occupancy')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+              🏛️ View Occupancy
+            </button>
+            <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
+              🚪 Logout
+            </button>
+          </div>
         </div>
-      </div>
 
       {stats && (
         <div className="stats-grid">
@@ -451,6 +457,7 @@ function AdminDashboard() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

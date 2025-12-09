@@ -1,5 +1,5 @@
 import express from 'express';
-import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer, getAllStudents, updateStudent, deleteStudent, getFoodClaims } from '../controllers/adminController.js';
+import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer, getAllStudents, updateStudent, deleteStudent, getFoodClaims, exportStudents, exportFoodLogs } from '../controllers/adminController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 
@@ -15,5 +15,7 @@ router.get('/students', authMiddleware, roleMiddleware('ADMIN'), getAllStudents)
 router.put('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), updateStudent);
 router.delete('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), deleteStudent);
 router.get('/food-claims', authMiddleware, roleMiddleware('ADMIN'), getFoodClaims);
+router.get('/export/students', authMiddleware, roleMiddleware('ADMIN'), exportStudents);
+router.get('/export/food-logs', authMiddleware, roleMiddleware('ADMIN'), exportFoodLogs);
 
 export default router;

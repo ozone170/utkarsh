@@ -4,6 +4,7 @@ import Hall from '../models/Hall.js';
 import HallLog from '../models/HallLog.js';
 import FoodLog from '../models/FoodLog.js';
 import AdminUser from '../models/AdminUser.js';
+import { logAudit } from '../../services/auditLogger.js';
 
 export const getOverviewStats = async (req, res) => {
   try {
@@ -158,7 +159,9 @@ export const getFoodClaims = async (req, res) => {
 export const updateStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { name, email, phone, branch, year } = req.body;
+    const { name, email, phone } = req.body;
+    const year = 1; // All students are first year
+    const branch = 'MBA'; // All students are MBA
     
     const student = await User.findByIdAndUpdate(
       studentId,
@@ -193,7 +196,85 @@ export const deleteStudent = async (req, res) => {
     await HallLog.deleteMany({ userId: studentId });
     await FoodLog.deleteMany({ userId: studentId });
 
+    // Log audit
+    await logAudit({
+      actorId: req.user.id,
+      actorName: req.user.name || 'Admin',
+      actorRole: req.user.role,
+      action: 'STUDENT_DELETE',
+      resource: 'User',
+      resourceId: studentId,
+      details: {
+        studentName: student.name,
+        studentEmail: student.email,
+        studentEventId: student.eventId
+      },
+      ipAddress: req.ip
+    });
+
     res.json({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const exportStudents = async (req, res) => {
+  try {
+    const students = await User.find().sort({ createdAt: -1 });
+    
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Phone', 'Branch', 'Event ID', 'Created At'];
+    const rows = students.map(s => [
+      s.name,
+      s.email,
+      s.phone,
+      s.branch,
+      s.eventId,
+      new Date(s.createdAt).toLocaleString()
+    ]);
+    
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=students.csv');
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const exportFoodLogs = async (req, res) => {
+  try {
+    const { date } = req.query;
+    const query = date ? { date } : {};
+    
+    const logs = await FoodLog.find(query)
+      .populate('userId', 'name email eventId branch year phone rollNo')
+      .sort({ time: -1 });
+    
+    // Create CSV content
+    const headers = ['Student Name', 'Email', 'Phone', 'Branch', 'Event ID', 'Date', 'Time'];
+    const rows = logs.map(log => [
+      log.userId.name,
+      log.userId.email,
+      log.userId.phone,
+      log.userId.branch,
+      log.userId.eventId,
+      log.date,
+      new Date(log.time).toLocaleString()
+    ]);
+    
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=food-logs-${date || 'all'}.csv`);
+    res.send(csv);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

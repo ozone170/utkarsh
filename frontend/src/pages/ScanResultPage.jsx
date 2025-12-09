@@ -66,7 +66,7 @@ function ScanResultPage() {
                 {scanType === 'hall' && scanResult.status === 'exit' && 'Exit Recorded'}
                 {scanType === 'hall' && scanResult.status === 'movement' && 'Hall Movement'}
                 {scanType === 'food' && scanResult.success && 'Food Approved'}
-                {scanType === 'food' && !scanResult.success && 'Food Denied'}
+                {scanType === 'food' && !scanResult.success && 'Food Already Claimed'}
               </h3>
               <p style={{ color: scanResult.success ? '#047857' : '#b91c1c', fontWeight: '600', fontSize: '18px' }}>
                 {scanResult.message}
@@ -79,6 +79,19 @@ function ScanResultPage() {
                 <span style={{ fontWeight: '700', color: '#047857', fontSize: '18px' }}>{scanResult.from}</span>
                 <span style={{ fontSize: '24px' }}>→</span>
                 <span style={{ fontWeight: '700', color: '#047857', fontSize: '18px' }}>{scanResult.to}</span>
+              </div>
+            </div>
+          )}
+          {scanType === 'food' && !scanResult.success && scanResult.claimedAt && (
+            <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px', textAlign: 'center' }}>
+              <div style={{ fontSize: '14px', color: '#991b1b', marginBottom: '4px', fontWeight: '600' }}>
+                ⏰ Previously Claimed At
+              </div>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: '#7f1d1d' }}>
+                {new Date(scanResult.claimedAt).toLocaleString('en-IN', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short'
+                })}
               </div>
             </div>
           )}

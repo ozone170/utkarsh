@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
+import Navbar from '../components/Navbar';
 import './RegisterPage.css';
 
 function RegisterPage() {
@@ -10,8 +11,8 @@ function RegisterPage() {
     name: '',
     email: '',
     phone: '',
-    branch: '',
-    year: 1
+    branch: 'MBA', // All students are MBA
+    year: 1 // All students are first year
   });
   const [registered, setRegistered] = useState(false);
   const [eventId, setEventId] = useState('');
@@ -118,7 +119,9 @@ function RegisterPage() {
     const qrSize = window.innerWidth < 768 ? 140 : 180;
     
     return (
-      <div className="container register-container">
+      <>
+        <Navbar showBackButton={true} />
+        <div className="container register-container">
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div className="register-success-header">
             <div className="register-success-emoji">🎉</div>
@@ -129,7 +132,23 @@ function RegisterPage() {
           </div>
 
           {/* ID Card */}
-          <div ref={idCardRef} className="id-card">
+          <div ref={idCardRef} className="id-card" style={{
+            backgroundImage: 'url(/card.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}>
+            {/* Overlay for better text readability */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%)',
+              borderRadius: '20px'
+            }}></div>
+
             {/* Decorative Elements */}
             <div style={{ 
               position: 'absolute', 
@@ -138,7 +157,8 @@ function RegisterPage() {
               width: '200px', 
               height: '200px', 
               background: 'rgba(255,255,255,0.1)', 
-              borderRadius: '50%' 
+              borderRadius: '50%',
+              zIndex: 1
             }}></div>
             <div style={{ 
               position: 'absolute', 
@@ -147,17 +167,38 @@ function RegisterPage() {
               width: '150px', 
               height: '150px', 
               background: 'rgba(255,255,255,0.1)', 
-              borderRadius: '50%' 
+              borderRadius: '50%',
+              zIndex: 1
             }}></div>
 
+            {/* Logo */}
+            <div style={{ 
+              position: 'absolute', 
+              top: '20px', 
+              left: '20px', 
+              zIndex: 2 
+            }}>
+              <img 
+                src="/logo.jpg" 
+                alt="UTKARSH Logo" 
+                style={{ 
+                  height: '50px', 
+                  width: 'auto', 
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+                }}
+                onError={(e) => e.target.style.display = 'none'}
+              />
+            </div>
+
             {/* Header */}
-            <div className="id-card-header">
+            <div className="id-card-header" style={{ position: 'relative', zIndex: 2 }}>
               <h1 className="id-card-title">UTKARSH</h1>
-              <p className="id-card-subtitle">Fresher Event 2024</p>
+              <p className="id-card-subtitle">Fresher Event 2025</p>
             </div>
 
             {/* Main Content */}
-            <div className="id-card-content">
+            <div className="id-card-content" style={{ position: 'relative', zIndex: 2 }}>
               {/* Student Details */}
               <div>
                 <div style={{ marginBottom: '24px' }}>
@@ -186,16 +227,8 @@ function RegisterPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                       <div className="student-detail-icon">🎓</div>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div className="student-detail-label">BRANCH</div>
-                        <div className="student-detail-value">{studentData.branch}</div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                      <div className="student-detail-icon">📚</div>
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div className="student-detail-label">YEAR</div>
-                        <div className="student-detail-value">{studentData.year}{studentData.year === 1 ? 'st' : studentData.year === 2 ? 'nd' : studentData.year === 3 ? 'rd' : 'th'} Year</div>
+                        <div className="student-detail-label">PROGRAM</div>
+                        <div className="student-detail-value">MBA - 1st Year</div>
                       </div>
                     </div>
                   </div>
@@ -212,7 +245,7 @@ function RegisterPage() {
             </div>
 
             {/* Footer */}
-            <div className="id-card-footer">
+            <div className="id-card-footer" style={{ position: 'relative', zIndex: 2 }}>
               <p style={{ margin: 0 }}>Keep this ID card safe • Present at all event venues</p>
             </div>
           </div>
@@ -231,7 +264,7 @@ function RegisterPage() {
               onClick={() => navigate('/')} 
               className="btn btn-secondary download-btn"
             >
-              ← Back to Home
+              ← Back to Landing Page
             </button>
           </div>
 
@@ -242,18 +275,38 @@ function RegisterPage() {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="container register-form-container">
+    <>
+      <Navbar showBackButton={true} />
+      <div className="container register-form-container">
       <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
         <div className="register-form-header">
-          <h2 className="register-form-title">🎓 Student Registration</h2>
-          <p style={{ color: 'var(--text-light)' }}>Fill in your details to get your event QR code</p>
+          <h2 className="register-form-title">🎓 MBA Fresher Registration</h2>
+          <p style={{ color: 'var(--text-light)' }}>UTKARSH 2025 - MBA First Year Student Registration</p>
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && (
+          <div style={{
+            padding: '20px',
+            background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+            border: '3px solid #ef4444',
+            borderRadius: '12px',
+            marginBottom: '24px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>❌</div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: '#991b1b', marginBottom: '8px' }}>
+              Registration Not Allowed
+            </div>
+            <div style={{ fontSize: '15px', color: '#b91c1c', lineHeight: '1.5' }}>
+              {error}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -280,25 +333,23 @@ function RegisterPage() {
             required
             className="input"
           />
-          <input
-            type="text"
-            placeholder="Branch (e.g., Computer Science)"
-            value={formData.branch}
-            onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-            required
-            className="input"
-          />
-          <select
-            value={formData.year}
-            onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-            required
-            className="input"
-          >
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
+          <div style={{ 
+            padding: '12px 16px', 
+            background: 'rgba(14, 165, 255, 0.1)', 
+            border: '1px solid rgba(14, 165, 255, 0.3)',
+            borderRadius: '8px',
+            color: '#0ea5ff',
+            fontSize: '14px',
+            textAlign: 'center',
+            marginTop: '8px',
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+            gap: '8px'
+          }}>
+            <span>🎓 Branch: MBA</span>
+            <span>📚 Year: 1st Year</span>
+          </div>
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px' }}>
             Register Now
           </button>
@@ -306,11 +357,12 @@ function RegisterPage() {
 
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <button onClick={() => navigate('/')} className="btn" style={{ background: 'transparent', color: 'var(--primary)' }}>
-            ← Back to Home
+            ← Back to Landing Page
           </button>
         </div>
       </div>
     </div>
+    </>
   );
 }
 

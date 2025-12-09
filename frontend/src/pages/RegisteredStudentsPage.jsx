@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
+import Navbar from '../components/Navbar';
 
 function RegisteredStudentsPage() {
   const navigate = useNavigate();
@@ -9,7 +10,6 @@ function RegisteredStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
-  const [viewingCard, setViewingCard] = useState(null);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -41,9 +41,7 @@ function RegisteredStudentsPage() {
       await axios.put(`/api/admin/students/${editingStudent._id}`, {
         name: editingStudent.name,
         email: editingStudent.email,
-        phone: editingStudent.phone,
-        branch: editingStudent.branch,
-        year: editingStudent.year
+        phone: editingStudent.phone
       });
       setEditingStudent(null);
       fetchStudents();
@@ -116,18 +114,20 @@ function RegisteredStudentsPage() {
   };
 
   return (
-    <div className="container" style={{ paddingTop: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '36px', color: 'white' }}>🎓 Registered Students</h1>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => navigate('/admin')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
-            ← Back to Dashboard
-          </button>
-          <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
-            Logout
-          </button>
+    <>
+      <Navbar />
+      <div className="container" style={{ paddingTop: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
+          <h1 style={{ fontSize: '36px', color: 'white' }}>🎓 Registered Students</h1>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button onClick={() => navigate('/admin')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
+              ← Dashboard
+            </button>
+            <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
+              🚪 Logout
+            </button>
+          </div>
         </div>
-      </div>
 
       <div className="card">
         {editingStudent && (
@@ -156,36 +156,32 @@ function RegisteredStudentsPage() {
                 className="input"
               />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={editingStudent.phone}
-                onChange={(e) => setEditingStudent({ ...editingStudent, phone: e.target.value })}
-                required
-                className="input"
-              />
-              <input
-                type="text"
-                placeholder="Branch"
-                value={editingStudent.branch}
-                onChange={(e) => setEditingStudent({ ...editingStudent, branch: e.target.value })}
-                required
-                className="input"
-              />
-            </div>
-            <select
-              value={editingStudent.year}
-              onChange={(e) => setEditingStudent({ ...editingStudent, year: parseInt(e.target.value) })}
+            <input
+              type="tel"
+              placeholder="Phone"
+              value={editingStudent.phone}
+              onChange={(e) => setEditingStudent({ ...editingStudent, phone: e.target.value })}
               required
               className="input"
               style={{ marginBottom: '12px' }}
-            >
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
-            </select>
+            />
+            <div style={{ 
+              padding: '12px', 
+              background: 'rgba(14, 165, 255, 0.1)', 
+              border: '1px solid rgba(14, 165, 255, 0.3)',
+              borderRadius: '8px',
+              color: '#0ea5ff',
+              fontSize: '14px',
+              textAlign: 'center',
+              marginBottom: '12px',
+              display: 'flex',
+              justifyContent: 'space-around',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <span>🎓 Branch: MBA</span>
+              <span>📚 Year: 1st Year</span>
+            </div>
             <button type="submit" className="btn btn-primary">Update Student</button>
           </form>
         )}
@@ -225,7 +221,10 @@ function RegisteredStudentsPage() {
                   <div 
                     ref={el => cardRefs.current[student._id] = el}
                     style={{ 
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                      backgroundImage: 'url(/card.jpg)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
                       borderRadius: '16px', 
                       padding: '24px',
                       boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
@@ -233,18 +232,58 @@ function RegisteredStudentsPage() {
                       overflow: 'hidden'
                     }}
                   >
-                    {/* Decorative Elements */}
-                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
-                    <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+                    {/* Overlay for better text readability */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%)',
+                      borderRadius: '16px'
+                    }}></div>
 
-                    {/* Header */}
-                    <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
-                      <h3 style={{ fontSize: '24px', color: 'white', marginBottom: '4px', fontWeight: '700' }}>UTKARSH</h3>
-                      <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', margin: 0 }}>Fresher Event 2024</p>
+                    {/* Decorative Elements */}
+                    <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', zIndex: 1 }}></div>
+                    <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', zIndex: 1 }}></div>
+
+                    {/* Header with Logo */}
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      gap: '12px',
+                      marginBottom: '20px', 
+                      position: 'relative', 
+                      zIndex: 2 
+                    }}>
+                      <img 
+                        src="/logo.jpg" 
+                        alt="UTKARSH Logo" 
+                        style={{ 
+                          height: '50px', 
+                          width: 'auto', 
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+                        }}
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                      <div style={{ textAlign: 'left' }}>
+                        <h3 style={{ fontSize: '24px', color: 'white', margin: 0, fontWeight: '700', lineHeight: '1.2' }}>UTKARSH</h3>
+                        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.95)', margin: 0, fontWeight: '600' }}>MBA Fresher Event 2025</p>
+                      </div>
                     </div>
 
                     {/* Content */}
-                    <div style={{ background: 'rgba(255,255,255,0.95)', padding: '20px', borderRadius: '12px', position: 'relative', zIndex: 1 }}>
+                    <div style={{ 
+                      background: 'rgba(255, 255, 255, 0.75)', 
+                      backdropFilter: 'blur(10px)',
+                      padding: '20px', 
+                      borderRadius: '12px', 
+                      position: 'relative', 
+                      zIndex: 2,
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
                       <div style={{ marginBottom: '16px' }}>
                         <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>{student.name}</div>
                         <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: '600' }}>
@@ -252,20 +291,27 @@ function RegisteredStudentsPage() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gap: '10px', marginBottom: '16px', fontSize: '13px' }}>
+                      <div style={{ display: 'grid', gap: '10px', marginBottom: '16px', fontSize: '13px', color: '#1f2937' }}>
                         <div><strong>Email:</strong> {student.email}</div>
                         <div><strong>Phone:</strong> {student.phone}</div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                          <div><strong>Branch:</strong> {student.branch}</div>
-                          <div><strong>Year:</strong> {student.year}</div>
+                          <div><strong>Branch:</strong> MBA</div>
+                          <div><strong>Year:</strong> 1st Year</div>
                         </div>
                         <div><strong>Registered:</strong> {new Date(student.createdAt).toLocaleDateString()}</div>
                       </div>
 
                       {/* QR Code */}
-                      <div style={{ textAlign: 'center', padding: '12px', background: 'white', borderRadius: '8px', border: '3px solid #667eea' }}>
+                      <div style={{ 
+                        textAlign: 'center', 
+                        padding: '12px', 
+                        background: 'rgba(255, 255, 255, 0.9)', 
+                        backdropFilter: 'blur(5px)',
+                        borderRadius: '8px', 
+                        border: '3px solid #667eea' 
+                      }}>
                         <QRCodeSVG value={student.eventId} size={120} level="H" />
-                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#6b7280', fontWeight: '600' }}>SCAN FOR ENTRY</div>
+                        <div style={{ marginTop: '8px', fontSize: '11px', color: '#4b5563', fontWeight: '600' }}>SCAN FOR ENTRY</div>
                       </div>
                     </div>
                   </div>
@@ -301,6 +347,7 @@ function RegisteredStudentsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

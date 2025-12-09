@@ -1,0 +1,170 @@
+{
+  "hero": {
+    "title": "UTKARSH",
+    "subtitle": "MBA Fresher Event 2025",
+    "description": "Welcome to the most exciting MBA fresher orientation event! Join us for an unforgettable experience as you begin your management journey.",
+    "navigation": [
+      {
+        "label": "Student Registration",
+        "link": "/register",
+        "icon": "🎓",
+        "description": "Register for the event"
+      },
+      {
+        "label": "Admin Login",
+        "link": "/login",
+        "icon": "👨‍💼",
+        "description": "Admin & Staff Access"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "about",
+      "title": "About the Event",
+      "content": "UTKARSH is a comprehensive MBA fresher orientation event designed to welcome new management students with exciting activities, networking opportunities, and memorable experiences.",
+      "icon": "🎓"
+    },
+    {
+      "id": "features",
+      "title": "Event Features",
+      "items": [
+        "Professional ID Card Generation",
+        "QR Code Based Entry System",
+        "Food Distribution Management",
+        "Multiple Event Halls",
+        "Real-time Tracking",
+        "Networking Sessions"
+      ],
+      "icon": "✨"
+    },
+    {
+      "id": "contact",
+      "title": "Contact Us",
+      "content": "For any queries, reach out to us at events@utkarsh.com",
+      "icon": "📧"
+    }
+  ],
+  "schedule": {
+    "title": "Event Schedule",
+    "icon": "📅",
+    "days": [
+      {
+        "day": "Day 1",
+        "date": "Inauguration & Guest Lectures",
+        "events": [
+          {
+            "event": "Inauguration",
+            "timing": "10:00 - 10:30",
+            "responsible": "Stage Committee"
+          },
+          {
+            "event": "Introduction of Dignitaries",
+            "timing": "10:30 - 10:45",
+            "responsible": "Chairperson"
+          },
+          {
+            "event": "Chairperson Addressing",
+            "timing": "10:45 - 11:15",
+            "responsible": "Chairperson"
+          },
+          {
+            "event": "Chief Guest Speech",
+            "timing": "11:15 - 11:45",
+            "responsible": "Chief Guest"
+          },
+          {
+            "event": "Guest Speaker 1",
+            "timing": "12:00 - 12:45",
+            "responsible": "Guest Speaker"
+          },
+          {
+            "event": "Guest Speaker 2",
+            "timing": "12:45 - 1:30",
+            "responsible": "Guest Speaker"
+          },
+          {
+            "event": "Lunch Break",
+            "timing": "1:30 - 2:30",
+            "responsible": "Food Committee"
+          },
+          {
+            "event": "Quiz",
+            "timing": "2:30 - 3:00",
+            "responsible": "Team Activity Dept"
+          },
+          {
+            "event": "Mad Ad",
+            "timing": "3:30 - 4:30",
+            "responsible": "Team Activity Dept"
+          }
+        ]
+      },
+      {
+        "day": "Day 2",
+        "date": "Management Events & Competitions",
+        "events": [
+          {
+            "event": "Physical Round",
+            "timing": "8:00 - 9:00",
+            "responsible": "Individual Departments"
+          },
+          {
+            "event": "Department Wise Rounds",
+            "timing": "9:00 - 1:30",
+            "responsible": "Dept Wise"
+          },
+          {
+            "event": "Lunch Break",
+            "timing": "1:30 - 2:30",
+            "responsible": "Food Committee"
+          },
+          {
+            "event": "Department Wise Rounds",
+            "timing": "2:30 - 4:30",
+            "responsible": "Dept Wise"
+          },
+          {
+            "event": "Results Announcement",
+            "timing": "4:30 - 5:00",
+            "responsible": "Departments"
+          }
+        ]
+      },
+      {
+        "day": "Day 3",
+        "date": "Finals & Cultural Events",
+        "events": [
+          {
+            "event": "BM and ED Final Rounds",
+            "timing": "9:00 - 12:00",
+            "responsible": "Departments"
+          },
+          {
+            "event": "Cultural Events",
+            "timing": "12:00 - 1:30",
+            "responsible": "Cultural Committee"
+          },
+          {
+            "event": "Lunch Break",
+            "timing": "1:30 - 2:30",
+            "responsible": "Food Committee"
+          },
+          {
+            "event": "Cultural Events",
+            "timing": "2:30 - 4:00",
+            "responsible": "Cultural Committee"
+          },
+          {
+            "event": "Valedictory",
+            "timing": "4:00 - 5:00",
+            "responsible": "Stage Committee"
+          }
+        ]
+      }
+    ]
+  },
+  "lastUpdated": "2024-12-09T00:00:00.000Z",
+  "source": "Google Sheets",
+  "sheetUrl": "https://docs.google.com/spreadsheets/d/1zvNdfqxItKDsku-nGXgnLoDrS8zWtsRg0jEIzzn1LPU/edit?usp=sharing"
+}

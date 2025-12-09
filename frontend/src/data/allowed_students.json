@@ -1,0 +1,13 @@
+{
+  "students": [
+    {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "1234567890"
+    }
+  ],
+  "lastUpdated": "2024-12-09T00:00:00.000Z",
+  "source": "Google Sheets",
+  "sheetUrl": "https://docs.google.com/spreadsheets/d/153b2dc9r03g9AniIO6gP3r1VOY0UljdeZn9CBkAB8Zw/edit?usp=sharing",
+  "note": "Students are validated by name, email, and phone. Event ID is auto-generated upon registration."
+}

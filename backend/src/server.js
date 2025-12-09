@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes.js';
 import hallRoutes from './routes/hallRoutes.js';
 import scanRoutes from './routes/scanRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import auditRoutes from './routes/auditRoutes.js';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/halls', hallRoutes);
 app.use('/api/scan', scanRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/audit', auditRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
