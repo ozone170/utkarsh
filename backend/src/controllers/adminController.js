@@ -141,6 +141,96 @@ export const getAllStudents = async (req, res) => {
   }
 };
 
+export const createStudent = async (req, res) => {
+  try {
+    const { name, email, phone, gender, section } = req.body;
+    const year = 1;
+    const branch = 'MBA';
+    
+    // Validate required fields
+    if (!name || !email || !phone || !gender || !section) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Validate gender
+    if (!['Male', 'Female', 'Other'].includes(gender)) {
+      return res.status(400).json({ message: 'Invalid gender value' });
+    }
+
+    // Validate section
+    if (!['A', 'B', 'C', 'D'].includes(section)) {
+      return res.status(400).json({ message: 'Invalid section value' });
+    }
+
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ 
+        message: 'Email already registered' 
+      });
+    }
+
+    // Check if phone already exists
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ 
+        message: 'Phone number already registered' 
+      });
+    }
+    
+    // Generate unique event ID (16-char hex)
+    const crypto = await import('crypto');
+    const eventId = crypto.randomBytes(8).toString('hex').toUpperCase();
+    
+    const user = await User.create({
+      name,
+      email,
+      phone,
+      branch,
+      year,
+      gender,
+      section,
+      eventId
+    });
+
+    // Log audit
+    if (req.user) {
+      await logAudit({
+        actorId: req.user.id,
+        actorName: req.user.name || 'Admin',
+        actorRole: req.user.role,
+        action: 'ADMIN_CREATE_STUDENT',
+        resource: 'User',
+        resourceId: user._id,
+        details: {
+          studentName: name,
+          studentEmail: email,
+          studentPhone: phone,
+          studentEventId: eventId
+        },
+        ipAddress: req.ip
+      });
+    }
+
+    res.status(201).json({ user, eventId });
+  } catch (error) {
+    if (error.code === 11000) {
+      if (error.keyPattern?.email) {
+        return res.status(400).json({ 
+          message: 'Email already registered' 
+        });
+      }
+      if (error.keyPattern?.phone) {
+        return res.status(400).json({ 
+          message: 'Phone number already registered' 
+        });
+      }
+      return res.status(400).json({ message: 'Student already exists' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const getFoodClaims = async (req, res) => {
   try {
     const { date } = req.query;

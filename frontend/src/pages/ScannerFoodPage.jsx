@@ -88,35 +88,10 @@ function ScannerFoodPage() {
     <>
       <Navbar />
       <div className="container" style={{ paddingTop: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <h1 style={{ fontSize: '36px', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
             🍽️ Food Scanner
           </h1>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => navigate('/')} 
-              className="btn" 
-              style={{ 
-                background: 'linear-gradient(135deg, #0ea5ff 0%, #06b6d4 100%)', 
-                color: 'white',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(14, 165, 255, 0.3)'
-              }}
-            >
-              🏠 Landing Page
-            </button>
-            <button 
-              onClick={() => { localStorage.clear(); navigate('/'); }} 
-              className="btn" 
-              style={{ 
-                background: 'white', 
-                color: 'var(--danger)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              🚪 Logout
-            </button>
-          </div>
         </div>
 
         <div className="card" style={{ maxWidth: '700px', margin: '0 auto', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)' }}>

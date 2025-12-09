@@ -107,11 +107,11 @@ function ScanResultPage() {
             ← Scan Another
           </button>
           <button 
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/landing')} 
             className="btn btn-secondary"
             style={{ flex: 1 }}
           >
-            🏠 Home
+            🏠 Back to Landing Page
           </button>
         </div>
       </div>

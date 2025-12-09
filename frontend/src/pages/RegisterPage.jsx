@@ -122,7 +122,7 @@ function RegisterPage() {
     
     return (
       <>
-        <Navbar showBackButton={true} />
+        <Navbar />
         <div className="container register-container">
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div className="register-success-header">
@@ -298,7 +298,7 @@ function RegisterPage() {
 
   return (
     <>
-      <Navbar showBackButton={true} />
+      <Navbar />
       <div className="container register-form-container">
       <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
         <div className="register-form-header">

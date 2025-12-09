@@ -1,24 +1,42 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import landingContent from '../data/landing_content.json';
 import Navbar from '../components/Navbar';
 import './LandingPage.css';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { hero, sections, schedule } = landingContent;
 
   return (
     <>
       <Navbar />
       <div className="landing-page">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
+      {/* Hero Section with Background Image */}
+      <section className="hero-section" style={{
+        backgroundImage: 'url(https://www.guidanceforever.org/wp-content/uploads/2023/11/visvesvaraya-technological-university-belgaum-featured.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        position: 'relative'
+      }}>
+        {/* Overlay for better text readability */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%)',
+          zIndex: 1
+        }}></div>
+        
+        <div className="hero-content" style={{ position: 'relative', zIndex: 2 }}>
           <h1 className="hero-title">{hero.title}</h1>
           <h2 className="hero-subtitle">{hero.subtitle}</h2>
           <p className="hero-description">{hero.description}</p>
           
-          {/* Navigation Buttons */}
+          {/* Student Registration CTA Only */}
           <div style={{ 
             display: 'flex', 
             gap: '20px', 
@@ -26,18 +44,43 @@ function LandingPage() {
             flexWrap: 'wrap',
             marginTop: '40px'
           }}>
-            {hero.navigation.map((nav, index) => (
-              <button 
-                key={index}
-                className="cta-button" 
-                onClick={() => navigate(nav.link)}
-                style={{ minWidth: '200px' }}
-              >
-                <span style={{ fontSize: '24px', marginRight: '8px' }}>{nav.icon}</span>
-                {nav.label}
-              </button>
-            ))}
+            <button 
+              className="cta-button" 
+              onClick={() => navigate('/register')}
+              style={{ minWidth: '250px', fontSize: '1.1rem', padding: '1rem 2rem' }}
+            >
+              <span style={{ fontSize: '28px', marginRight: '12px' }}>🎓</span>
+              Student Registration
+            </button>
           </div>
+
+          {/* Role-based Quick Links */}
+          {user && (
+            <div style={{ 
+              marginTop: '30px',
+              display: 'flex',
+              gap: '15px',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              {user.role === 'ADMIN' && (
+                <button 
+                  className="cta-button-secondary" 
+                  onClick={() => navigate('/admin')}
+                >
+                  📊 Go to Dashboard
+                </button>
+              )}
+              {(user.role === 'SCANNER' || user.role === 'VOLUNTEER') && (
+                <button 
+                  className="cta-button-secondary" 
+                  onClick={() => navigate('/scanner')}
+                >
+                  📱 Go to Scanner
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

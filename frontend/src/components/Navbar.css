@@ -52,26 +52,55 @@
   font-weight: 600;
 }
 
-.navbar-back-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  font-weight: 500;
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.navbar-back-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateX(-3px);
+.navbar-link {
+  background: transparent;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.navbar-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-logout {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.navbar-logout:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.navbar-login {
+  background: rgba(14, 165, 255, 0.2);
+  border: 1px solid rgba(14, 165, 255, 0.3);
+}
+
+.navbar-login:hover {
+  background: rgba(14, 165, 255, 0.3);
 }
 
 @media (max-width: 768px) {
   .navbar {
     padding: 0.75rem 1rem;
+  }
+
+  .navbar-container {
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .navbar-logo-img {
@@ -82,8 +111,14 @@
     font-size: 1.25rem;
   }
 
-  .navbar-back-btn {
-    padding: 0.4rem 1rem;
+  .navbar-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .navbar-link {
+    padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
   }
 }

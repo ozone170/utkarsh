@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 import Navbar from '../components/Navbar';
+import StudentFormModal from '../components/StudentFormModal';
 
 function RegisteredStudentsPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function RegisteredStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -26,6 +28,12 @@ function RegisteredStudentsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddStudent = async (formData) => {
+    const response = await axios.post('/api/admin/students', formData);
+    fetchStudents(); // Refresh the list
+    return response.data;
   };
 
   const filteredStudents = students.filter(student =>
@@ -120,14 +128,28 @@ function RegisteredStudentsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
           <h1 style={{ fontSize: '36px', color: 'white' }}>🎓 Registered Students</h1>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setShowAddModal(true)} 
+              className="btn btn-primary"
+              style={{ 
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+              }}
+            >
+              ➕ Add Student
+            </button>
             <button onClick={() => navigate('/admin')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
               ← Dashboard
             </button>
-            <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
-              🚪 Logout
-            </button>
           </div>
         </div>
+
+        <StudentFormModal 
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAddStudent}
+        />
 
       <div className="card">
         {editingStudent && (

@@ -117,19 +117,8 @@ function AdminDashboard() {
     <>
       <Navbar />
       <div className="container" style={{ paddingTop: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <h1 style={{ fontSize: '36px', color: 'white' }}>📊 Admin Dashboard</h1>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/')} className="btn" style={{ background: 'linear-gradient(135deg, #0ea5ff 0%, #06b6d4 100%)', color: 'white', border: 'none' }}>
-              🏠 Landing Page
-            </button>
-            <button onClick={() => navigate('/admin/hall-occupancy')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
-              🏛️ View Occupancy
-            </button>
-            <button onClick={() => { localStorage.clear(); navigate('/'); }} className="btn" style={{ background: 'white', color: 'var(--danger)' }}>
-              🚪 Logout
-            </button>
-          </div>
         </div>
 
       {stats && (
