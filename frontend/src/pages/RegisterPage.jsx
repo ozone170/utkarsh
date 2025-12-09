@@ -11,6 +11,8 @@ function RegisterPage() {
     name: '',
     email: '',
     phone: '',
+    gender: '',
+    section: '',
     branch: 'MBA', // All students are MBA
     year: 1 // All students are first year
   });
@@ -223,13 +225,28 @@ function RegisterPage() {
                     </div>
                   </div>
 
-                  <div className="student-details-grid">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                       <div className="student-detail-icon">🎓</div>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div className="student-detail-label">PROGRAM</div>
                         <div className="student-detail-value">MBA - 1st Year</div>
                       </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                      <div className="student-detail-icon">{studentData.gender === 'Male' ? '👨' : studentData.gender === 'Female' ? '👩' : '🧑'}</div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div className="student-detail-label">GENDER</div>
+                        <div className="student-detail-value">{studentData.gender}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="student-detail-icon">📋</div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div className="student-detail-label">SECTION</div>
+                      <div className="student-detail-value">Section {studentData.section}</div>
                     </div>
                   </div>
                 </div>
@@ -333,6 +350,50 @@ function RegisterPage() {
             required
             className="input"
           />
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+            <select
+              value={formData.gender}
+              onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+              required
+              className="input"
+              style={{ 
+                appearance: 'none',
+                backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                backgroundSize: '20px',
+                paddingRight: '40px'
+              }}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <select
+              value={formData.section}
+              onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+              required
+              className="input"
+              style={{ 
+                appearance: 'none',
+                backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                backgroundSize: '20px',
+                paddingRight: '40px'
+              }}
+            >
+              <option value="">Select Section</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
+            </select>
+          </div>
+
           <div style={{ 
             padding: '12px 16px', 
             background: 'rgba(14, 165, 255, 0.1)', 
@@ -341,7 +402,7 @@ function RegisterPage() {
             color: '#0ea5ff',
             fontSize: '14px',
             textAlign: 'center',
-            marginTop: '8px',
+            marginTop: '12px',
             display: 'flex',
             justifyContent: 'space-around',
             flexWrap: 'wrap',

@@ -6,9 +6,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "seed": "node src/seed.js",
-    "csv-to-json": "node scripts/csv-to-json.js",
-    "sync-sheets": "node services/sheetsFetch.js",
-    "fetch-sheets": "node scripts/fetch-sheets-data.js"
+    "csv-to-json": "node scripts/csv-to-json.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

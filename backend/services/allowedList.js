@@ -13,10 +13,10 @@ let lastLoaded = null;
  */
 export const loadAllowedStudents = () => {
   try {
-    const filePath = path.join(__dirname, '../data/allowed_students.json');
+    const filePath = path.join(__dirname, 'students.json');
     const data = fs.readFileSync(filePath, 'utf8');
     const parsed = JSON.parse(data);
-    allowedStudents = parsed.students || [];
+    allowedStudents = Array.isArray(parsed) ? parsed : [];
     lastLoaded = new Date();
     console.log(`✓ Loaded ${allowedStudents.length} allowed students`);
     return allowedStudents;
@@ -28,16 +28,13 @@ export const loadAllowedStudents = () => {
 };
 
 /**
- * Check if a student is allowed to register
- * @param {Object} student - Student details
- * @param {string} student.name - Student name
- * @param {string} student.email - Student email
- * @param {string} student.phone - Student phone
+ * Check if a student is allowed to register based on phone number
+ * @param {string} phone - Student phone number
  * @returns {boolean} - True if allowed, false otherwise
  */
-export const isAllowed = (student) => {
-  if (!student) {
-    console.log('❌ No student data provided');
+export const isAllowed = (phone) => {
+  if (!phone) {
+    console.log('❌ No phone number provided');
     return false;
   }
 
@@ -46,31 +43,22 @@ export const isAllowed = (student) => {
     loadAllowedStudents();
   }
 
-  console.log(`🔍 Checking allowlist for: ${student.name} (${student.email}, ${student.phone})`);
+  // Normalize phone number (remove spaces)
+  const normalizedPhone = phone.replace(/\s/g, '');
+  
+  console.log(`🔍 Checking allowlist for phone: ${normalizedPhone}`);
   console.log(`📋 Total allowed students: ${allowedStudents.length}`);
 
-  // Check if student matches any entry in the allowlist
+  // Check if phone number exists in the allowlist
   const found = allowedStudents.find(allowed => {
-    const nameMatch = allowed.name?.toLowerCase().trim() === student.name?.toLowerCase().trim();
-    const emailMatch = allowed.email?.toLowerCase().trim() === student.email?.toLowerCase().trim();
-    const phoneMatch = allowed.phone?.replace(/\s/g, '') === student.phone?.replace(/\s/g, '');
-
-    // Student must match at least 2 criteria (name + email OR name + phone OR email + phone)
-    const matches = [nameMatch, emailMatch, phoneMatch].filter(Boolean).length;
-    
-    if (matches > 0) {
-      console.log(`  Comparing with: ${allowed.name} (${allowed.email}, ${allowed.phone})`);
-      console.log(`    Name match: ${nameMatch}, Email match: ${emailMatch}, Phone match: ${phoneMatch}`);
-      console.log(`    Total matches: ${matches}/3`);
-    }
-    
-    return matches >= 2;
+    const allowedPhone = allowed.phone?.replace(/\s/g, '');
+    return allowedPhone === normalizedPhone;
   });
 
   if (found) {
-    console.log(`✅ Student ALLOWED: ${student.name}`);
+    console.log(`✅ Phone number ALLOWED: ${normalizedPhone} (${found.name})`);
   } else {
-    console.log(`❌ Student NOT ALLOWED: ${student.name}`);
+    console.log(`❌ Phone number NOT ALLOWED: ${normalizedPhone}`);
   }
 
   return !!found;

@@ -298,6 +298,10 @@ function RegisteredStudentsPage() {
                           <div><strong>Branch:</strong> MBA</div>
                           <div><strong>Year:</strong> 1st Year</div>
                         </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div><strong>Gender:</strong> {student.gender || 'N/A'}</div>
+                          <div><strong>Section:</strong> {student.section || 'N/A'}</div>
+                        </div>
                         <div><strong>Registered:</strong> {new Date(student.createdAt).toLocaleDateString()}</div>
                       </div>
 
