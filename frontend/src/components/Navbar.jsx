@@ -32,7 +32,7 @@ function Navbar() {
 
         <div className="navbar-links">
           <button onClick={() => navigate("/landing")} className="navbar-link">
-            Landing Page
+            Home Page
           </button>
 
           {user?.role === "ADMIN" && (
