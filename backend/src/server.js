@@ -24,6 +24,9 @@ const getAllowedOrigins = () => {
     'http://localhost:5173',    // Local development
     'http://localhost:5174',    // Alternative local port
     'http://localhost:3000',    // Alternative React port
+    'https://utkarsh-eta.vercel.app',  // Production frontend
+    'https://utkarsh-frontend.vercel.app',  // Alternative frontend URL
+    'https://utkarsh.vercel.app',  // Alternative frontend URL
   ];
   
   // Add environment-specified origins
@@ -38,15 +41,20 @@ const getAllowedOrigins = () => {
     origins.push(...additionalOrigins);
   }
   
-  return origins.filter(Boolean);
+  return [...new Set(origins.filter(Boolean))]; // Remove duplicates
 };
 
 const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.) only in development
+    // Allow requests with no origin (mobile apps, Postman, etc.) in development
     if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // In production, also allow requests from Vercel preview deployments
+    if (origin && origin.includes('vercel.app')) {
       return callback(null, true);
     }
     
