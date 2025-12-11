@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import axios from '../api/axios';
@@ -6,13 +6,16 @@ import Navbar from '../components/Navbar';
 
 function ScannerFoodPage() {
   const navigate = useNavigate();
+  const scannerRef = useRef(null);
   const [message, setMessage] = useState('');
-  const [scanner, setScanner] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isHandling, setIsHandling] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
 
   const startScanning = () => {
-    if (!isScanning) {
+    if (!isScanning && !isHandling) {
       setIsScanning(true);
+      setMessage('');
       // Wait for DOM to render
       setTimeout(() => {
         const html5QrcodeScanner = new Html5QrcodeScanner(
@@ -21,36 +24,57 @@ function ScannerFoodPage() {
         );
         
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        setScanner(html5QrcodeScanner);
+        scannerRef.current = html5QrcodeScanner;
       }, 100);
     }
   };
 
-  const stopScanning = () => {
-    if (scanner) {
-      scanner.clear();
-      setScanner(null);
+  const stopScanning = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.clear();
+      } catch (error) {
+        console.log('Scanner already cleared');
+      }
+      scannerRef.current = null;
       setIsScanning(false);
     }
   };
 
   useEffect(() => {
     return () => {
-      if (scanner) {
-        scanner.clear();
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {});
       }
     };
-  }, [scanner]);
+  }, []);
 
   const onScanSuccess = async (decodedText) => {
+    // Prevent concurrent handling
+    if (isHandling) return;
+    
+    setIsHandling(true);
+    setShowSpinner(true);
+    
     try {
-      // Stop scanning
-      stopScanning();
+      // Immediately stop scanning
+      await stopScanning();
 
       // Process the food scan
       const scanResponse = await axios.post('/api/scan/food', {
         eventId: decodedText
       });
+      
+      // Handle duplicate scan response
+      if (scanResponse.data.isDuplicate) {
+        setMessage(`⚠️ ${scanResponse.data.message}`);
+        setTimeout(() => {
+          setMessage('');
+          setIsHandling(false);
+          setShowSpinner(false);
+        }, 2000);
+        return;
+      }
       
       const scanResult = {
         success: scanResponse.data.status === 'allowed',
@@ -71,12 +95,22 @@ function ScannerFoodPage() {
         }
       });
     } catch (err) {
-      // Only show error for actual failures (404, 500, etc.)
-      setMessage(`✗ ${err.response?.data?.message || 'Scan failed'}`);
+      let errorMessage = 'Scan failed';
+      let timeout = 2000;
+      
+      if (err.response?.status === 429) {
+        errorMessage = '⏳ Too many requests - please wait before scanning again';
+        timeout = 5000;
+      } else {
+        errorMessage = `✗ ${err.response?.data?.message || 'Scan failed'}`;
+      }
+      
+      setMessage(errorMessage);
       setTimeout(() => {
         setMessage('');
-        stopScanning();
-      }, 2000);
+        setIsHandling(false);
+        setShowSpinner(false);
+      }, timeout);
     }
   };
 
@@ -127,22 +161,16 @@ function ScannerFoodPage() {
               </div>
             </div>
             
-            {!isScanning && (
+            {!isScanning && !isHandling && (
               <div style={{ textAlign: 'center', marginTop: '32px' }}>
                 <button 
                   onClick={startScanning} 
-                  className="btn btn-primary" 
+                  className="btn btn-primary scanner-button touchable" 
                   style={{ 
-                    fontSize: '18px', 
-                    padding: '16px 48px',
                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     border: 'none',
-                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
-                    transform: 'scale(1)',
-                    transition: 'transform 0.2s ease'
+                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
                   }}
-                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
                   📱 Start Scanning
                 </button>
@@ -151,6 +179,20 @@ function ScannerFoodPage() {
                   <p style={{ fontSize: '16px', fontWeight: '500' }}>Ready to scan student QR codes</p>
                   <p style={{ fontSize: '14px', marginTop: '8px', opacity: 0.7 }}>Click the button above to begin</p>
                 </div>
+              </div>
+            )}
+
+            {showSpinner && (
+              <div style={{ 
+                textAlign: 'center', 
+                marginTop: '24px',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                borderRadius: '12px',
+                border: '2px solid #f59e0b'
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+                <p style={{ color: '#78350f', fontWeight: '600' }}>Processing food scan...</p>
               </div>
             )}
 
@@ -171,17 +213,15 @@ function ScannerFoodPage() {
                   }}>
                     📱 Position QR code within the frame
                   </p>
-                  <div id="reader" style={{ borderRadius: '8px', overflow: 'hidden' }}></div>
+                  <div className="scanner-container">
+                    <div id="reader" className="scanner-frame"></div>
+                  </div>
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <button 
                     onClick={stopScanning} 
-                    className="btn btn-secondary"
-                    style={{
-                      padding: '12px 32px',
-                      fontSize: '16px'
-                    }}
+                    className="btn btn-secondary scanner-button touchable"
                   >
                     ⏹️ Stop Scanning
                   </button>
@@ -189,15 +229,7 @@ function ScannerFoodPage() {
 
                 {message && (
                   <div 
-                    className={`alert ${message.startsWith('✓') ? 'alert-success' : 'alert-error'}`} 
-                    style={{ 
-                      marginTop: '20px', 
-                      fontSize: '16px', 
-                      textAlign: 'center',
-                      padding: '16px',
-                      borderRadius: '8px',
-                      fontWeight: '600'
-                    }}
+                    className={`alert scanner-message ${message.startsWith('✓') ? 'alert-success' : 'alert-error'}`}
                   >
                     {message}
                   </div>

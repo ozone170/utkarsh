@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 import Navbar from '../components/Navbar';
+import BulkUploadModal from '../components/BulkUploadModal';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function AdminDashboard() {
   const [newVolunteer, setNewVolunteer] = useState({ name: '', email: '', password: '', assignedHall: '' });
   const [showVolunteerForm, setShowVolunteerForm] = useState(false);
   const [editingVolunteer, setEditingVolunteer] = useState(null);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -113,6 +115,12 @@ function AdminDashboard() {
     }
   };
 
+  const handleBulkUploadSuccess = (createdCount) => {
+    setShowBulkUpload(false);
+    fetchStats(); // Refresh stats
+    alert(`Successfully created ${createdCount} students!`);
+  };
+
   return (
     <>
       <Navbar />
@@ -124,7 +132,7 @@ function AdminDashboard() {
       {stats && (
         <div className="stats-grid">
           <div 
-            className="stat-card" 
+            className="stat-card touchable" 
             onClick={() => navigate('/admin/students')}
             style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
@@ -135,7 +143,7 @@ function AdminDashboard() {
             <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view all →</div>
           </div>
           <div 
-            className="stat-card" 
+            className="stat-card touchable" 
             onClick={() => navigate('/admin/halls')}
             style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
@@ -146,7 +154,7 @@ function AdminDashboard() {
             <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view all →</div>
           </div>
           <div 
-            className="stat-card" 
+            className="stat-card touchable" 
             onClick={() => navigate('/admin/food-claims')}
             style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
@@ -157,7 +165,7 @@ function AdminDashboard() {
             <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view claims →</div>
           </div>
           <div 
-            className="stat-card" 
+            className="stat-card touchable" 
             onClick={() => navigate('/admin/hall-occupancy')}
             style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
@@ -168,7 +176,7 @@ function AdminDashboard() {
             <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '8px' }}>Click to view occupancy →</div>
           </div>
           <div 
-            className="stat-card" 
+            className="stat-card touchable" 
             onClick={() => navigate('/admin/volunteers')}
             style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', cursor: 'pointer', transition: 'transform 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
@@ -182,9 +190,34 @@ function AdminDashboard() {
       )}
 
       <div className="card">
-        <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>🏛️ Create New Hall</h2>
-        <form onSubmit={handleCreateHall} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div style={{ flex: '1 1 200px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ color: '#1f2937', margin: 0, fontWeight: '700' }}>👥 Student Management</h2>
+          <button 
+            onClick={() => setShowBulkUpload(true)}
+            className="btn btn-primary touchable"
+          >
+            📊 Bulk Upload Students
+          </button>
+        </div>
+        
+        <div style={{ 
+          padding: '16px', 
+          background: 'rgba(14, 165, 255, 0.1)', 
+          border: '1px solid rgba(14, 165, 255, 0.3)',
+          borderRadius: '8px',
+          marginBottom: '20px'
+        }}>
+          <p style={{ margin: 0, color: '#0ea5ff', fontSize: '14px' }}>
+            💡 <strong>Tip:</strong> Use bulk upload to add multiple students at once from CSV or XLSX files. 
+            Individual students can be added from the Students page.
+          </p>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginBottom: '20px', color: '#1f2937', fontWeight: '700' }}>🏛️ Create New Hall</h2>
+        <form onSubmit={handleCreateHall} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', alignItems: 'end' }}>
+          <div>
             <input
               type="text"
               placeholder="Hall Name"
@@ -194,7 +227,7 @@ function AdminDashboard() {
               className="input"
             />
           </div>
-          <div style={{ flex: '1 1 150px' }}>
+          <div>
             <input
               type="text"
               placeholder="Hall Code"
@@ -204,7 +237,7 @@ function AdminDashboard() {
               className="input"
             />
           </div>
-          <div style={{ flex: '1 1 150px' }}>
+          <div>
             <input
               type="number"
               placeholder="Capacity"
@@ -214,7 +247,7 @@ function AdminDashboard() {
               className="input"
             />
           </div>
-          <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--light)', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--light)', borderRadius: '8px', minHeight: '44px' }}>
             <input
               type="checkbox"
               id="isFoodCounter"
@@ -222,72 +255,74 @@ function AdminDashboard() {
               onChange={(e) => setNewHall({ ...newHall, isFoodCounter: e.target.checked })}
               style={{ width: '20px', height: '20px', cursor: 'pointer' }}
             />
-            <label htmlFor="isFoodCounter" style={{ cursor: 'pointer', fontWeight: '600', whiteSpace: 'nowrap' }}>
+            <label htmlFor="isFoodCounter" className="touchable" style={{ cursor: 'pointer', fontWeight: '600', whiteSpace: 'nowrap' }}>
               🍽️ Food Counter
             </label>
           </div>
-          <button type="submit" className="btn btn-primary">Create Hall</button>
+          <button type="submit" className="btn btn-primary touchable" style={{ minHeight: '44px' }}>Create Hall</button>
         </form>
       </div>
 
       <div className="card">
-        <h2 style={{ marginBottom: '20px', color: 'var(--dark)' }}>📋 Halls List</h2>
+        <h2 style={{ marginBottom: '20px', color: '#1f2937', fontWeight: '700' }}>📋 Halls List</h2>
         {halls.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-light)', padding: '40px' }}>
             No halls created yet. Create your first hall above!
           </p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Capacity</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {halls.map((hall) => (
-                <tr key={hall._id}>
-                  <td>{hall.name}</td>
-                  <td><code style={{ background: 'var(--light)', padding: '4px 8px', borderRadius: '4px' }}>{hall.code}</code></td>
-                  <td>{hall.capacity}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <span style={{ 
-                        background: hall.isActive ? 'var(--success)' : 'var(--danger)', 
-                        color: 'white', 
-                        padding: '4px 12px', 
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}>
-                        {hall.isActive ? '✓ Active' : '✗ Inactive'}
-                      </span>
-                      {hall.isFoodCounter && (
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Capacity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {halls.map((hall) => (
+                  <tr key={hall._id}>
+                    <td className="card-title" style={{ color: 'var(--text)' }}>{hall.name}</td>
+                    <td><code style={{ background: 'var(--light)', padding: '4px 8px', borderRadius: '4px' }}>{hall.code}</code></td>
+                    <td>{hall.capacity}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                         <span style={{ 
-                          background: 'var(--warning)', 
+                          background: hall.isActive ? 'var(--success)' : 'var(--danger)', 
                           color: 'white', 
-                          padding: '4px 12px', 
+                          padding: '4px 8px', 
                           borderRadius: '12px',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           fontWeight: '600'
                         }}>
-                          🍽️ Food Counter
+                          {hall.isActive ? '✓ Active' : '✗ Inactive'}
                         </span>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {hall.isFoodCounter && (
+                          <span style={{ 
+                            background: 'var(--warning)', 
+                            color: 'white', 
+                            padding: '4px 8px', 
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600'
+                          }}>
+                            🍽️ Food
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ color: 'var(--dark)' }}>👥 Volunteer Management</h2>
+          <h2 style={{ color: '#1f2937', margin: 0, fontWeight: '700' }}>👥 Volunteer Management</h2>
           <button onClick={() => setShowVolunteerForm(!showVolunteerForm)} className="btn btn-primary">
             {showVolunteerForm ? 'Cancel' : '+ Add Volunteer'}
           </button>
@@ -296,7 +331,7 @@ function AdminDashboard() {
         {showVolunteerForm && (
           <form onSubmit={handleCreateVolunteer} style={{ marginBottom: '24px', padding: '20px', background: 'var(--light)', borderRadius: '12px' }}>
             <h3 style={{ marginBottom: '16px' }}>Create New Volunteer</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px', marginBottom: '12px' }}>
               <input
                 type="text"
                 placeholder="Volunteer Name"
@@ -351,7 +386,7 @@ function AdminDashboard() {
                 ✕ Cancel
               </button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px', marginBottom: '12px' }}>
               <input
                 type="text"
                 placeholder="Volunteer Name"
@@ -394,57 +429,66 @@ function AdminDashboard() {
             No volunteers created yet. Add your first volunteer above!
           </p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Assigned Halls</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {volunteers.map((volunteer) => (
-                <tr key={volunteer._id}>
-                  <td style={{ fontWeight: '600' }}>{volunteer.name}</td>
-                  <td>{volunteer.email}</td>
-                  <td>
-                    {volunteer.assignedHalls && volunteer.assignedHalls.length > 0 ? (
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                        {volunteer.assignedHalls.map((hall) => (
-                          <span key={hall._id} style={{ background: 'var(--primary)', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '12px' }}>
-                            {hall.name}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span style={{ color: 'var(--text-light)' }}>No halls assigned</span>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button 
-                        onClick={() => startEditVolunteer(volunteer)} 
-                        className="btn btn-secondary" 
-                        style={{ padding: '6px 12px', fontSize: '14px' }}
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteVolunteer(volunteer._id)} 
-                        className="btn" 
-                        style={{ background: 'var(--danger)', color: 'white', padding: '6px 12px', fontSize: '14px' }}
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  </td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Assigned Halls</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {volunteers.map((volunteer) => (
+                  <tr key={volunteer._id}>
+                    <td className="card-title" style={{ fontWeight: '600', color: 'var(--text)' }}>{volunteer.name}</td>
+                    <td style={{ wordBreak: 'break-word' }}>{volunteer.email}</td>
+                    <td>
+                      {volunteer.assignedHalls && volunteer.assignedHalls.length > 0 ? (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {volunteer.assignedHalls.map((hall) => (
+                            <span key={hall._id} style={{ background: 'var(--primary)', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '11px' }}>
+                              {hall.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--text-light)' }}>No halls assigned</span>
+                      )}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        <button 
+                          onClick={() => startEditVolunteer(volunteer)} 
+                          className="btn btn-secondary touchable" 
+                          style={{ padding: '6px 12px', fontSize: '12px', minHeight: '32px' }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteVolunteer(volunteer._id)} 
+                          className="btn touchable" 
+                          style={{ background: 'var(--danger)', color: 'white', padding: '6px 12px', fontSize: '12px', minHeight: '32px' }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
+
+      {/* Bulk Upload Modal */}
+      <BulkUploadModal
+        isOpen={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onSuccess={handleBulkUploadSuccess}
+      />
     </div>
     </>
   );

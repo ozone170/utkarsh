@@ -3,10 +3,24 @@ import Hall from '../models/Hall.js';
 import HallLog from '../models/HallLog.js';
 import FoodLog from '../models/FoodLog.js';
 import { logAudit } from '../../services/auditLogger.js';
+import dedupeCache from '../services/dedupeCache.js';
 
 export const scanHall = async (req, res) => {
   try {
     const { eventId, hallCode } = req.body;
+    
+    // Check for duplicate scan within TTL window
+    const cacheKey = dedupeCache.generateScanKey(req.user.id, eventId, 'hall');
+    if (dedupeCache.has(cacheKey)) {
+      return res.json({ 
+        status: 'duplicate', 
+        message: 'Duplicate scan ignored - please wait before scanning again',
+        isDuplicate: true
+      });
+    }
+    
+    // Add to dedupe cache
+    dedupeCache.put(cacheKey, 3000); // 3 second TTL
     
     const user = await User.findOne({ eventId });
     if (!user) {
@@ -93,6 +107,19 @@ export const scanHall = async (req, res) => {
 export const scanFood = async (req, res) => {
   try {
     const { eventId } = req.body;
+    
+    // Check for duplicate scan within TTL window
+    const cacheKey = dedupeCache.generateScanKey(req.user.id, eventId, 'food');
+    if (dedupeCache.has(cacheKey)) {
+      return res.json({ 
+        status: 'duplicate', 
+        message: 'Duplicate scan ignored - please wait before scanning again',
+        isDuplicate: true
+      });
+    }
+    
+    // Add to dedupe cache
+    dedupeCache.put(cacheKey, 3000); // 3 second TTL
     
     const user = await User.findOne({ eventId });
     if (!user) {

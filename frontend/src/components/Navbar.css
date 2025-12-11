@@ -58,6 +58,39 @@
   gap: 0.5rem;
 }
 
+/* Mobile toggle button */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 30px;
+  height: 30px;
+  justify-content: space-around;
+}
+
+.navbar-toggle-line {
+  width: 25px;
+  height: 3px;
+  background: white;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.navbar-toggle-line.open:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.navbar-toggle-line.open:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-toggle-line.open:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
 .navbar-link {
   background: transparent;
   color: white;
@@ -99,8 +132,10 @@
   }
 
   .navbar-container {
-    flex-direction: column;
-    gap: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
   }
 
   .navbar-logo-img {
@@ -111,14 +146,67 @@
     font-size: 1.25rem;
   }
 
+  .navbar-toggle {
+    display: flex;
+  }
+
   .navbar-links {
-    flex-wrap: wrap;
-    justify-content: center;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    flex-direction: column;
+    padding: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     gap: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 12px 12px;
+    backdrop-filter: blur(10px);
+    z-index: 1001;
+  }
+
+  .navbar-links-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
   }
 
   .navbar-link {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+    margin: 0.25rem 0;
+  }
+
+  .navbar-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+  }
+
+  .navbar-link:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Ensure navbar stays on top */
+@media (max-width: 768px) {
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+  
+  /* Add body padding to account for fixed navbar */
+  body.navbar-open {
+    overflow: hidden;
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import axios from '../api/axios';
@@ -6,19 +6,25 @@ import Navbar from '../components/Navbar';
 
 function ScannerHallPage() {
   const navigate = useNavigate();
+  const scannerRef = useRef(null);
   const [halls, setHalls] = useState([]);
   const [selectedHall, setSelectedHall] = useState('');
   const [message, setMessage] = useState('');
-  const [scanner, setScanner] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isHandling, setIsHandling] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAutoSelected, setIsAutoSelected] = useState(false);
 
   useEffect(() => {
+    fetchCurrentUser();
     fetchHalls();
   }, []);
 
   const startScanning = () => {
-    if (selectedHall && !isScanning) {
+    if (selectedHall && !isScanning && !isHandling) {
       setIsScanning(true);
+      setMessage('');
       // Wait for DOM to render
       setTimeout(() => {
         const html5QrcodeScanner = new Html5QrcodeScanner(
@@ -27,26 +33,46 @@ function ScannerHallPage() {
         );
         
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        setScanner(html5QrcodeScanner);
+        scannerRef.current = html5QrcodeScanner;
       }, 100);
     }
   };
 
-  const stopScanning = () => {
-    if (scanner) {
-      scanner.clear();
-      setScanner(null);
+  const stopScanning = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.clear();
+      } catch (error) {
+        console.log('Scanner already cleared');
+      }
+      scannerRef.current = null;
       setIsScanning(false);
     }
   };
 
   useEffect(() => {
     return () => {
-      if (scanner) {
-        scanner.clear();
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {});
       }
     };
-  }, [scanner]);
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await axios.get('/api/profile');
+      setCurrentUser(response.data);
+      
+      // Auto-select hall if user has assigned halls
+      if (response.data.assignedHalls && response.data.assignedHalls.length > 0) {
+        const assignedHall = response.data.assignedHalls[0]; // Use first assigned hall
+        setSelectedHall(assignedHall.code);
+        setIsAutoSelected(true);
+      }
+    } catch (err) {
+      console.error('Failed to fetch current user', err);
+    }
+  };
 
   const fetchHalls = async () => {
     try {
@@ -58,9 +84,15 @@ function ScannerHallPage() {
   };
 
   const onScanSuccess = async (decodedText) => {
+    // Prevent concurrent handling
+    if (isHandling) return;
+    
+    setIsHandling(true);
+    setShowSpinner(true);
+    
     try {
-      // Stop scanning
-      stopScanning();
+      // Immediately stop scanning
+      await stopScanning();
 
       // First, get student details
       const userResponse = await axios.get(`/api/users/by-event-id/${decodedText}`);
@@ -71,6 +103,17 @@ function ScannerHallPage() {
         eventId: decodedText,
         hallCode: selectedHall
       });
+      
+      // Handle duplicate scan response
+      if (scanResponse.data.isDuplicate) {
+        setMessage(`⚠️ ${scanResponse.data.message}`);
+        setTimeout(() => {
+          setMessage('');
+          setIsHandling(false);
+          setShowSpinner(false);
+        }, 2000);
+        return;
+      }
       
       const scanResult = {
         success: true,
@@ -90,11 +133,22 @@ function ScannerHallPage() {
         }
       });
     } catch (err) {
-      setMessage(`✗ ${err.response?.data?.message || 'Scan failed'}`);
+      let errorMessage = 'Scan failed';
+      let timeout = 2000;
+      
+      if (err.response?.status === 429) {
+        errorMessage = '⏳ Too many requests - please wait before scanning again';
+        timeout = 5000;
+      } else {
+        errorMessage = `✗ ${err.response?.data?.message || 'Scan failed'}`;
+      }
+      
+      setMessage(errorMessage);
       setTimeout(() => {
         setMessage('');
-        stopScanning();
-      }, 2000);
+        setIsHandling(false);
+        setShowSpinner(false);
+      }, timeout);
     }
   };
 
@@ -107,7 +161,15 @@ function ScannerHallPage() {
       <Navbar />
       <div className="container" style={{ paddingTop: '20px' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '36px', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h1 style={{ 
+            fontSize: window.innerWidth <= 768 ? '28px' : '36px', 
+            color: 'white', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px',
+            textAlign: 'center',
+            justifyContent: 'center'
+          }}>
             🏛️ Hall Scanner
           </h1>
         </div>
@@ -120,49 +182,101 @@ function ScannerHallPage() {
             marginBottom: '24px',
             color: 'white'
           }}>
-            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>Select Hall Location</h2>
-            <p style={{ margin: '8px 0 0 0', opacity: 0.9, fontSize: '14px' }}>Choose the hall where you're scanning students</p>
+            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>
+              {isAutoSelected ? 'Ready to Scan' : 'Select Hall Location'}
+            </h2>
+            <p style={{ margin: '8px 0 0 0', opacity: 0.9, fontSize: '14px' }}>
+              {isAutoSelected 
+                ? `Scanning for ${currentUser?.assignedHalls?.[0]?.name || 'assigned hall'}`
+                : 'Choose the hall where you\'re scanning students'
+              }
+            </p>
           </div>
 
           <div style={{ padding: '0 24px 24px 24px' }}>
-            <select
-              value={selectedHall}
-              onChange={(e) => setSelectedHall(e.target.value)}
-              className="input"
-              style={{ 
-                fontSize: '18px', 
-                padding: '16px',
-                border: '2px solid var(--light)',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <option value="">🏛️ Choose a hall...</option>
-              {halls.map((hall) => (
-                <option key={hall._id} value={hall.code}>
-                  {hall.name} ({hall.code})
-                </option>
-              ))}
-            </select>
+            {isAutoSelected ? (
+              <div style={{
+                background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                padding: '20px',
+                borderRadius: '12px',
+                border: '2px solid #10b981',
+                marginBottom: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏛️</div>
+                <h3 style={{ color: '#065f46', margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700' }}>
+                  {currentUser?.assignedHalls?.[0]?.name}
+                </h3>
+                <p style={{ color: '#047857', margin: 0, fontSize: '14px', fontWeight: '600' }}>
+                  Code: {currentUser?.assignedHalls?.[0]?.code}
+                </p>
+                <button
+                  onClick={() => {
+                    setIsAutoSelected(false);
+                    setSelectedHall('');
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #059669',
+                    color: '#059669',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    marginTop: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Change Hall
+                </button>
+              </div>
+            ) : (
+              <select
+                value={selectedHall}
+                onChange={(e) => setSelectedHall(e.target.value)}
+                className="input"
+                style={{ 
+                  fontSize: '18px', 
+                  padding: '16px',
+                  border: '2px solid var(--light)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <option value="">🏛️ Choose a hall...</option>
+                {halls.map((hall) => (
+                  <option key={hall._id} value={hall.code}>
+                    {hall.name} ({hall.code})
+                  </option>
+                ))}
+              </select>
+            )}
 
-            {selectedHall && !isScanning && (
+            {selectedHall && !isScanning && !isHandling && (
               <div style={{ textAlign: 'center', marginTop: '32px' }}>
                 <button 
                   onClick={startScanning} 
-                  className="btn btn-primary" 
+                  className="btn btn-primary scanner-button touchable" 
                   style={{ 
-                    fontSize: '18px', 
-                    padding: '16px 48px',
                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     border: 'none',
-                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
-                    transform: 'scale(1)',
-                    transition: 'transform 0.2s ease'
+                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
                   }}
-                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
                   📱 Start Scanning
                 </button>
+              </div>
+            )}
+
+            {showSpinner && (
+              <div style={{ 
+                textAlign: 'center', 
+                marginTop: '24px',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                borderRadius: '12px',
+                border: '2px solid #0ea5ff'
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+                <p style={{ color: '#0f172a', fontWeight: '600' }}>Processing scan...</p>
               </div>
             )}
 
@@ -184,17 +298,15 @@ function ScannerHallPage() {
                   }}>
                     📱 Position QR code within the frame
                   </p>
-                  <div id="reader" style={{ borderRadius: '8px', overflow: 'hidden' }}></div>
+                  <div className="scanner-container">
+                    <div id="reader" className="scanner-frame"></div>
+                  </div>
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <button 
                     onClick={stopScanning} 
-                    className="btn btn-secondary"
-                    style={{
-                      padding: '12px 32px',
-                      fontSize: '16px'
-                    }}
+                    className="btn btn-secondary scanner-button touchable"
                   >
                     ⏹️ Stop Scanning
                   </button>
@@ -202,15 +314,7 @@ function ScannerHallPage() {
 
                 {message && (
                   <div 
-                    className={`alert ${message.startsWith('✓') ? 'alert-success' : 'alert-error'}`} 
-                    style={{ 
-                      marginTop: '20px', 
-                      fontSize: '16px', 
-                      textAlign: 'center',
-                      padding: '16px',
-                      borderRadius: '8px',
-                      fontWeight: '600'
-                    }}
+                    className={`alert scanner-message ${message.startsWith('✓') ? 'alert-success' : 'alert-error'}`}
                   >
                     {message}
                   </div>

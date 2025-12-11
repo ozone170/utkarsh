@@ -12,6 +12,9 @@ import RegisteredStudentsPage from './pages/RegisteredStudentsPage';
 import HallsListPage from './pages/HallsListPage';
 import FoodClaimsPage from './pages/FoodClaimsPage';
 import VolunteersListPage from './pages/VolunteersListPage';
+import ProfilePage from './pages/ProfilePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
+
 
 function App() {
   return (
@@ -32,6 +35,9 @@ function App() {
           <Route path="/admin/halls" element={<HallsListPage />} />
           <Route path="/admin/food-claims" element={<FoodClaimsPage />} />
           <Route path="/admin/volunteers" element={<VolunteersListPage />} />
+
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/change-password" element={<ChangePasswordPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

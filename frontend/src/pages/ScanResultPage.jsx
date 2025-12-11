@@ -23,11 +23,11 @@ function ScanResultPage() {
       <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
         {/* Student Details */}
         <div style={{ padding: '24px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', color: 'white', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-            <div style={{ fontSize: '64px', marginRight: '16px' }}>👤</div>
-            <div>
-              <h2 style={{ fontSize: '28px', marginBottom: '4px' }}>{studentDetails.name}</h2>
-              <p style={{ opacity: 0.9, fontSize: '16px' }}>Event ID: {studentDetails.eventId}</p>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+            <div className="scanner-result-icon">👤</div>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <h2 className="card-title" style={{ color: 'white', margin: 0, marginBottom: '4px' }}>{studentDetails.name}</h2>
+              <p style={{ opacity: 0.9, fontSize: '16px', margin: 0 }}>Event ID: {studentDetails.eventId}</p>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '20px' }}>
@@ -51,27 +51,37 @@ function ScanResultPage() {
         </div>
 
         {/* Scan Result */}
-        <div style={{ padding: '24px', background: scanResult.success ? '#d1fae5' : '#fee2e2', borderRadius: '12px', border: `3px solid ${scanResult.success ? '#10b981' : '#ef4444'}`, marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-            <div style={{ fontSize: '64px', marginRight: '16px' }}>
-              {scanType === 'hall' && scanResult.status === 'entry' && '🚪'}
-              {scanType === 'hall' && scanResult.status === 'exit' && '👋'}
-              {scanType === 'hall' && scanResult.status === 'movement' && '🔄'}
-              {scanType === 'food' && scanResult.success && '✅'}
-              {scanType === 'food' && !scanResult.success && '❌'}
-            </div>
-            <div>
-              <h3 style={{ fontSize: '24px', color: scanResult.success ? '#065f46' : '#991b1b', marginBottom: '8px' }}>
-                {scanType === 'hall' && scanResult.status === 'entry' && 'Entry Recorded'}
-                {scanType === 'hall' && scanResult.status === 'exit' && 'Exit Recorded'}
-                {scanType === 'hall' && scanResult.status === 'movement' && 'Hall Movement'}
-                {scanType === 'food' && scanResult.success && 'Food Approved'}
-                {scanType === 'food' && !scanResult.success && 'Food Already Claimed'}
-              </h3>
-              <p style={{ color: scanResult.success ? '#047857' : '#b91c1c', fontWeight: '600', fontSize: '18px' }}>
-                {scanResult.message}
-              </p>
-            </div>
+        <div style={{ 
+          padding: '24px', 
+          background: scanResult.success ? '#d1fae5' : '#fee2e2', 
+          borderRadius: '12px', 
+          border: `3px solid ${scanResult.success ? '#10b981' : '#ef4444'}`, 
+          marginBottom: '24px',
+          textAlign: 'center'
+        }}>
+          <div className="scanner-result-icon" style={{ margin: '0 auto 16px auto' }}>
+            {scanType === 'hall' && scanResult.status === 'entry' && '🚪'}
+            {scanType === 'hall' && scanResult.status === 'exit' && '👋'}
+            {scanType === 'hall' && scanResult.status === 'movement' && '🔄'}
+            {scanType === 'food' && scanResult.success && '✅'}
+            {scanType === 'food' && !scanResult.success && '❌'}
+          </div>
+          <div>
+            <h3 style={{ fontSize: '24px', color: scanResult.success ? '#065f46' : '#991b1b', marginBottom: '8px' }}>
+              {scanType === 'hall' && scanResult.status === 'entry' && 'Entry Recorded'}
+              {scanType === 'hall' && scanResult.status === 'exit' && 'Exit Recorded'}
+              {scanType === 'hall' && scanResult.status === 'movement' && 'Hall Movement'}
+              {scanType === 'food' && scanResult.success && 'Food Approved'}
+              {scanType === 'food' && !scanResult.success && 'Food Already Claimed'}
+            </h3>
+            <p className="scanner-message" style={{ 
+              color: scanResult.success ? '#047857' : '#b91c1c', 
+              margin: '8px 0',
+              background: 'rgba(255,255,255,0.5)',
+              borderRadius: '8px'
+            }}>
+              {scanResult.message}
+            </p>
           </div>
           {scanType === 'hall' && scanResult.status === 'movement' && (
             <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px' }}>
@@ -98,20 +108,17 @@ function ScanResultPage() {
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
             onClick={() => navigate(-1)} 
-            className="btn btn-primary" 
-            style={{ flex: 1 }}
+            className="btn btn-primary scanner-button touchable" 
+            style={{ 
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              border: 'none',
+              boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
+            }}
           >
-            ← Scan Another
-          </button>
-          <button 
-            onClick={() => navigate('/landing')} 
-            className="btn btn-secondary"
-            style={{ flex: 1 }}
-          >
-            🏠 Back to Landing Page
+            📱 Scan Another
           </button>
         </div>
       </div>

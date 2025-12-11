@@ -12,7 +12,7 @@ const auditLogSchema = new mongoose.Schema({
   },
   actorRole: { 
     type: String, 
-    enum: ['ADMIN', 'SCANNER', 'VOLUNTEER'], 
+    enum: ['ADMIN', 'SCANNER', 'VOLUNTEER', 'USER'], 
     required: true 
   },
   action: { 
@@ -32,7 +32,13 @@ const auditLogSchema = new mongoose.Schema({
       'HALL_DELETE',
       'VOLUNTEER_CREATE',
       'VOLUNTEER_UPDATE',
-      'VOLUNTEER_DELETE'
+      'VOLUNTEER_DELETE',
+      'PROFILE_UPDATE',
+      'PASSWORD_CHANGE',
+      'PHOTO_UPLOAD',
+      'PHOTO_REMOVE',
+      'CERTIFICATE_GENERATED',
+      'BULK_CERTIFICATES_GENERATED'
     ]
   },
   resource: { 

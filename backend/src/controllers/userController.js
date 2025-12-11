@@ -1,16 +1,38 @@
 import User from '../models/User.js';
 import crypto from 'crypto';
 import { isAllowed } from '../../services/allowedList.js';
+import { validateProgramYear, getValidPrograms } from '../utils/programValidation.js';
+import { normalizePhone, sanitizeString, sanitizeEmail } from '../middleware/validation.js';
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, phone, gender, section } = req.body;
-    const year = 1; // All students are first year for UTKARSH 2025
-    const branch = 'MBA'; // All students are MBA
+    let { name, email, phone, gender, section, program, year } = req.body;
+    
+    // Sanitize inputs
+    name = sanitizeString(name);
+    email = sanitizeEmail(email);
+    phone = normalizePhone(phone);
+    gender = sanitizeString(gender);
+    section = sanitizeString(section)?.toUpperCase();
+    program = sanitizeString(program);
     
     // Validate required fields
-    if (!name || !email || !phone || !gender || !section) {
+    if (!name || !email || !phone || !gender || !section || !program || !year) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Validate program
+    const validPrograms = getValidPrograms();
+    if (!validPrograms.includes(program)) {
+      return res.status(400).json({ 
+        message: `Invalid program. Valid programs: ${validPrograms.join(', ')}` 
+      });
+    }
+
+    // Validate program-year combination
+    const programYearError = validateProgramYear(program, year);
+    if (programYearError) {
+      return res.status(400).json({ message: programYearError });
     }
 
     // Validate gender
@@ -53,8 +75,8 @@ export const registerUser = async (req, res) => {
       name,
       email,
       phone,
-      branch,
-      year,
+      program,
+      year: Number(year),
       gender,
       section,
       eventId

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
@@ -5,16 +6,49 @@ import "./Navbar.css";
 function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navbarRef = useRef(null);
 
   const handleLogout = () => {
     logout();
     navigate("/landing");
+    setIsMenuOpen(false);
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleNavClick = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
+  // Close menu when clicking outside and manage body scroll
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.classList.add('navbar-open');
+    } else {
+      document.body.classList.remove('navbar-open');
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.classList.remove('navbar-open');
+    };
+  }, [isMenuOpen]);
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" ref={navbarRef}>
       <div className="navbar-container">
-        <div className="navbar-logo" onClick={() => navigate("/landing")}>
+        <div className="navbar-logo" onClick={() => handleNavClick("/landing")}>
           <img
             src="/logo.jpg"
             alt="UTKARSH Logo"
@@ -30,21 +64,32 @@ function Navbar() {
           </div>
         </div>
 
-        <div className="navbar-links">
-          <button onClick={() => navigate("/landing")} className="navbar-link">
+        {/* Mobile menu toggle button */}
+        <button 
+          className="navbar-toggle"
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          <span className={`navbar-toggle-line ${isMenuOpen ? 'open' : ''}`}></span>
+          <span className={`navbar-toggle-line ${isMenuOpen ? 'open' : ''}`}></span>
+          <span className={`navbar-toggle-line ${isMenuOpen ? 'open' : ''}`}></span>
+        </button>
+
+        <div className={`navbar-links ${isMenuOpen ? 'navbar-links-open' : ''}`}>
+          <button onClick={() => handleNavClick("/landing")} className="navbar-link">
             Home Page
           </button>
 
           {user?.role === "ADMIN" && (
             <>
               <button
-                onClick={() => navigate("/admin")}
+                onClick={() => handleNavClick("/admin")}
                 className="navbar-link"
               >
                 Dashboard
               </button>
               <button
-                onClick={() => navigate("/admin/hall-occupancy")}
+                onClick={() => handleNavClick("/admin/hall-occupancy")}
                 className="navbar-link"
               >
                 View Occupancy
@@ -54,10 +99,19 @@ function Navbar() {
 
           {(user?.role === "SCANNER" || user?.role === "VOLUNTEER") && (
             <button
-              onClick={() => navigate("/scanner/hall")}
+              onClick={() => handleNavClick("/scanner/hall")}
               className="navbar-link"
             >
               Scan
+            </button>
+          )}
+
+          {user && (
+            <button
+              onClick={() => handleNavClick("/profile")}
+              className="navbar-link"
+            >
+              Profile
             </button>
           )}
 
@@ -70,7 +124,7 @@ function Navbar() {
             </button>
           ) : (
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => handleNavClick("/login")}
               className="navbar-link navbar-login"
             >
               Login

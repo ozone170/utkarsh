@@ -1,0 +1,127 @@
+/* Badge Component Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Size variants */
+.badge--sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  min-height: 20px;
+}
+
+.badge--md {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  min-height: 24px;
+}
+
+.badge--lg {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-base);
+  min-height: 28px;
+}
+
+/* Dot variant */
+.badge--dot {
+  padding: 0;
+  width: 8px;
+  height: 8px;
+  min-height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.badge--dot.badge--sm {
+  width: 6px;
+  height: 6px;
+  min-height: 6px;
+}
+
+.badge--dot.badge--lg {
+  width: 10px;
+  height: 10px;
+  min-height: 10px;
+}
+
+/* Color variants */
+.badge--primary {
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+}
+
+.badge--dot.badge--primary {
+  background: var(--color-primary-500);
+}
+
+.badge--secondary {
+  background: var(--color-secondary-100);
+  color: var(--color-secondary-800);
+}
+
+.badge--dot.badge--secondary {
+  background: var(--color-secondary-500);
+}
+
+.badge--success {
+  background: var(--color-success-100);
+  color: var(--color-success-700);
+}
+
+.badge--dot.badge--success {
+  background: var(--color-success-500);
+}
+
+.badge--danger {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
+}
+
+.badge--dot.badge--danger {
+  background: var(--color-danger-500);
+}
+
+.badge--warning {
+  background: var(--color-warning-100);
+  color: var(--color-warning-700);
+}
+
+.badge--dot.badge--warning {
+  background: var(--color-warning-500);
+}
+
+.badge--gray {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.badge--dot.badge--gray {
+  background: var(--color-gray-400);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .badge--sm {
+    font-size: 10px;
+    padding: 2px 6px;
+    min-height: 18px;
+  }
+
+  .badge--md {
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-2);
+    min-height: 22px;
+  }
+
+  .badge--lg {
+    font-size: var(--font-size-sm);
+    padding: var(--space-1) var(--space-3);
+    min-height: 26px;
+  }
+}

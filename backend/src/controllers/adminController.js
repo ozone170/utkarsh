@@ -1,10 +1,13 @@
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import Hall from '../models/Hall.js';
 import HallLog from '../models/HallLog.js';
 import FoodLog from '../models/FoodLog.js';
 import AdminUser from '../models/AdminUser.js';
 import { logAudit } from '../../services/auditLogger.js';
+import { parseUploadedFile, processBulkUpload, generateCSVTemplate } from '../services/fileParser.js';
 
 export const getOverviewStats = async (req, res) => {
   try {
@@ -143,13 +146,28 @@ export const getAllStudents = async (req, res) => {
 
 export const createStudent = async (req, res) => {
   try {
-    const { name, email, phone, gender, section } = req.body;
-    const year = 1;
-    const branch = 'MBA';
+    const { name, email, phone, gender, section, program, year } = req.body;
     
     // Validate required fields
-    if (!name || !email || !phone || !gender || !section) {
+    if (!name || !email || !phone || !gender || !section || !program || !year) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Import validation utilities
+    const { validateProgramYear, getValidPrograms } = await import('../utils/programValidation.js');
+    
+    // Validate program
+    const validPrograms = getValidPrograms();
+    if (!validPrograms.includes(program)) {
+      return res.status(400).json({ 
+        message: `Invalid program. Valid programs: ${validPrograms.join(', ')}` 
+      });
+    }
+
+    // Validate program-year combination
+    const programYearError = validateProgramYear(program, year);
+    if (programYearError) {
+      return res.status(400).json({ message: programYearError });
     }
 
     // Validate gender
@@ -186,8 +204,8 @@ export const createStudent = async (req, res) => {
       name,
       email,
       phone,
-      branch,
-      year,
+      program,
+      year: Number(year),
       gender,
       section,
       eventId
@@ -250,13 +268,38 @@ export const getFoodClaims = async (req, res) => {
 export const updateStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { name, email, phone } = req.body;
-    const year = 1; // All students are first year
-    const branch = 'MBA'; // All students are MBA
+    const { name, email, phone, program, year, gender, section } = req.body;
+    
+    // Import validation utilities
+    const { validateProgramYear, getValidPrograms } = await import('../utils/programValidation.js');
+    
+    // Validate program if provided
+    if (program) {
+      const validPrograms = getValidPrograms();
+      if (!validPrograms.includes(program)) {
+        return res.status(400).json({ 
+          message: `Invalid program. Valid programs: ${validPrograms.join(', ')}` 
+        });
+      }
+    }
+
+    // Validate program-year combination if both provided
+    if (program && year) {
+      const programYearError = validateProgramYear(program, year);
+      if (programYearError) {
+        return res.status(400).json({ message: programYearError });
+      }
+    }
+    
+    const updateData = { name, email, phone };
+    if (program) updateData.program = program;
+    if (year) updateData.year = Number(year);
+    if (gender) updateData.gender = gender;
+    if (section) updateData.section = section;
     
     const student = await User.findByIdAndUpdate(
       studentId,
-      { name, email, phone, branch, year },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -370,3 +413,223 @@ export const exportFoodLogs = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const bulkUploadStudents = async (req, res) => {
+  try {
+    const { defaultProgram = 'MBA', forceApply = false } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Parse the uploaded file
+    let records;
+    try {
+      records = parseUploadedFile(file.path, file.originalname);
+    } catch (parseError) {
+      // Clean up uploaded file
+      fs.unlinkSync(file.path);
+      return res.status(400).json({ 
+        message: 'File parsing failed', 
+        error: parseError.message 
+      });
+    }
+
+    if (records.length === 0) {
+      fs.unlinkSync(file.path);
+      return res.status(400).json({ message: 'File contains no data rows' });
+    }
+
+    // Process and validate records
+    const processResults = processBulkUpload(records, defaultProgram);
+
+    // Check for existing users in database
+    const validRecords = processResults.valid;
+    const existingEmails = [];
+    const existingPhones = [];
+
+    if (validRecords.length > 0) {
+      const emails = validRecords.map(r => r.data.email);
+      const phones = validRecords.map(r => r.data.phone);
+
+      const existingUsers = await User.find({
+        $or: [
+          { email: { $in: emails } },
+          { phone: { $in: phones } }
+        ]
+      });
+
+      existingUsers.forEach(user => {
+        const emailMatch = validRecords.find(r => r.data.email === user.email);
+        const phoneMatch = validRecords.find(r => r.data.phone === user.phone);
+
+        if (emailMatch) {
+          existingEmails.push({
+            ...emailMatch,
+            errors: [...emailMatch.errors, 'Email already exists in database'],
+            existingUser: { name: user.name, email: user.email }
+          });
+        }
+
+        if (phoneMatch && phoneMatch !== emailMatch) {
+          existingPhones.push({
+            ...phoneMatch,
+            errors: [...phoneMatch.errors, 'Phone already exists in database'],
+            existingUser: { name: user.name, phone: user.phone }
+          });
+        }
+      });
+
+      // Remove existing users from valid records unless forceApply is true
+      if (!forceApply) {
+        const existingEmailSet = new Set(existingEmails.map(e => e.data.email));
+        const existingPhoneSet = new Set(existingPhones.map(p => p.data.phone));
+        
+        processResults.valid = validRecords.filter(record => 
+          !existingEmailSet.has(record.data.email) && 
+          !existingPhoneSet.has(record.data.phone)
+        );
+      }
+    }
+
+    // Prepare response
+    const response = {
+      file: {
+        name: file.originalname,
+        size: file.size,
+        type: file.mimetype
+      },
+      processing: {
+        totalRows: processResults.total,
+        validRows: processResults.valid.length,
+        invalidRows: processResults.invalid.length,
+        duplicateEmails: processResults.duplicateEmails.length,
+        duplicatePhones: processResults.duplicatePhones.length,
+        existingEmails: existingEmails.length,
+        existingPhones: existingPhones.length
+      },
+      preview: {
+        valid: processResults.valid.slice(0, 5), // Show first 5 valid records
+        invalid: processResults.invalid.slice(0, 10), // Show first 10 invalid records
+        existingEmails: existingEmails.slice(0, 5),
+        existingPhones: existingPhones.slice(0, 5)
+      },
+      canApply: processResults.valid.length > 0,
+      forceApply: Boolean(forceApply)
+    };
+
+    // If forceApply is true, actually create the users
+    if (forceApply && processResults.valid.length > 0) {
+      const createdUsers = [];
+      const failedUsers = [];
+
+      for (const record of processResults.valid) {
+        try {
+          // Generate unique event ID
+          const eventId = crypto.randomBytes(8).toString('hex').toUpperCase();
+          
+          const user = await User.create({
+            ...record.data,
+            eventId
+          });
+
+          createdUsers.push({
+            ...record,
+            user,
+            eventId
+          });
+        } catch (createError) {
+          failedUsers.push({
+            ...record,
+            error: createError.message
+          });
+        }
+      }
+
+      // Log audit
+      await logAudit({
+        actorId: req.user.id,
+        actorName: req.user.name || 'Admin',
+        actorRole: req.user.role,
+        action: 'BULK_UPLOAD_STUDENTS',
+        resource: 'User',
+        details: {
+          fileName: file.originalname,
+          totalRows: processResults.total,
+          createdCount: createdUsers.length,
+          failedCount: failedUsers.length,
+          forceApply: true
+        },
+        ipAddress: req.ip
+      });
+
+      response.applied = {
+        created: createdUsers.length,
+        failed: failedUsers.length,
+        createdUsers: createdUsers.slice(0, 5), // Show first 5 created
+        failedUsers
+      };
+    }
+
+    // Clean up uploaded file
+    fs.unlinkSync(file.path);
+
+    res.json(response);
+  } catch (error) {
+    // Clean up uploaded file on error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const downloadTemplate = async (req, res) => {
+  try {
+    const csvTemplate = generateCSVTemplate();
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=student-upload-template.csv');
+    res.send(csvTemplate);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get all users (both regular users and admin users) for certificate management
+ */
+export const getAllUsers = async (req, res) => {
+  try {
+    // Get regular users
+    const regularUsers = await User.find({})
+      .select('name email phone program year eventId profilePhoto')
+      .lean();
+
+    // Get admin users
+    const adminUsers = await AdminUser.find({})
+      .populate('assignedHalls', 'name code')
+      .select('name email role assignedHalls profilePhoto')
+      .lean();
+
+    // Combine and format users
+    const allUsers = [
+      ...regularUsers.map(user => ({
+        ...user,
+        role: 'PARTICIPANT',
+        type: 'user'
+      })),
+      ...adminUsers.map(user => ({
+        ...user,
+        type: 'admin'
+      }))
+    ];
+
+    res.json(allUsers);
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+

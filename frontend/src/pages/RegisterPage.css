@@ -378,7 +378,7 @@
 .register-form-title {
   font-size: 32px;
   margin-bottom: 8px;
-  color: var(--dark);
+  color: #000000 !important;
 }
 
 @media (max-width: 768px) {

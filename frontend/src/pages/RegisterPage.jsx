@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 import Navbar from '../components/Navbar';
+import { getProgramOptions, getYearOptions, getYearDisplayText, isValidYearForProgram } from '../utils/programs';
 import './RegisterPage.css';
 
 function RegisterPage() {
@@ -13,8 +14,8 @@ function RegisterPage() {
     phone: '',
     gender: '',
     section: '',
-    branch: 'MBA', // All students are MBA
-    year: 1 // All students are first year
+    program: 'MBA', // Default to MBA
+    year: 1 // Default to first year
   });
   const [registered, setRegistered] = useState(false);
   const [eventId, setEventId] = useState('');
@@ -25,6 +26,13 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Validate year for program
+    if (!isValidYearForProgram(formData.program, formData.year)) {
+      setError(`Year ${formData.year} is not valid for ${formData.program} program`);
+      return;
+    }
+    
     try {
       const response = await axios.post('/api/users/register', formData);
       setEventId(response.data.eventId);
@@ -33,6 +41,16 @@ function RegisterPage() {
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
+  };
+
+  const handleProgramChange = (program) => {
+    const allowedYears = getYearOptions(program);
+    setFormData({
+      ...formData,
+      program,
+      // Reset year to first allowed year if current year is not valid
+      year: allowedYears.includes(formData.year) ? formData.year : allowedYears[0]
+    });
   };
 
   const captureIDCard = async () => {
@@ -230,7 +248,7 @@ function RegisterPage() {
                       <div className="student-detail-icon">🎓</div>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div className="student-detail-label">PROGRAM</div>
-                        <div className="student-detail-value">MBA - 1st Year</div>
+                        <div className="student-detail-value">{studentData.program} - {getYearDisplayText(studentData.year)}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
@@ -302,8 +320,8 @@ function RegisterPage() {
       <div className="container register-form-container">
       <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
         <div className="register-form-header">
-          <h2 className="register-form-title">🎓 MBA Fresher Registration</h2>
-          <p style={{ color: 'var(--text-light)' }}>UTKARSH 2025 - MBA First Year Student Registration</p>
+          <h2 className="register-form-title" style={{ color: '#000000' }}>🎓 Student Registration</h2>
+          <p style={{ color: '#000000', fontWeight: '600' }}>UTKARSH 2025 - Fresher Event Registration</p>
         </div>
 
         {error && (
@@ -351,6 +369,54 @@ function RegisterPage() {
             className="input"
           />
           
+          {/* Program Selection */}
+          <select
+            value={formData.program}
+            onChange={(e) => handleProgramChange(e.target.value)}
+            required
+            className="input"
+            style={{ 
+              appearance: 'none',
+              backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 12px center',
+              backgroundSize: '20px',
+              paddingRight: '40px',
+              marginTop: '12px'
+            }}
+          >
+            <option value="">Select Program</option>
+            {getProgramOptions().map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Year Selection - Dynamic based on program */}
+          <select
+            value={formData.year}
+            onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
+            required
+            className="input"
+            style={{ 
+              appearance: 'none',
+              backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 12px center',
+              backgroundSize: '20px',
+              paddingRight: '40px',
+              marginTop: '12px'
+            }}
+          >
+            <option value="">Select Year</option>
+            {getYearOptions(formData.program).map(year => (
+              <option key={year} value={year}>
+                {getYearDisplayText(year)}
+              </option>
+            ))}
+          </select>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
             <select
               value={formData.gender}
@@ -394,23 +460,27 @@ function RegisterPage() {
             </select>
           </div>
 
-          <div style={{ 
-            padding: '12px 16px', 
-            background: 'rgba(14, 165, 255, 0.1)', 
-            border: '1px solid rgba(14, 165, 255, 0.3)',
-            borderRadius: '8px',
-            color: '#0ea5ff',
-            fontSize: '14px',
-            textAlign: 'center',
-            marginTop: '12px',
-            display: 'flex',
-            justifyContent: 'space-around',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}>
-            <span>🎓 Branch: MBA</span>
-            <span>📚 Year: 1st Year</span>
-          </div>
+          {/* Program Info Display */}
+          {formData.program && (
+            <div style={{ 
+              padding: '12px 16px', 
+              background: 'rgba(14, 165, 255, 0.1)', 
+              border: '1px solid rgba(14, 165, 255, 0.3)',
+              borderRadius: '8px',
+              color: '#0ea5ff',
+              fontSize: '14px',
+              textAlign: 'center',
+              marginTop: '12px',
+              display: 'flex',
+              justifyContent: 'space-around',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <span>🎓 Program: {formData.program}</span>
+              {formData.year && <span>📚 Year: {getYearDisplayText(formData.year)}</span>}
+              <span>📋 Available Years: {getYearOptions(formData.program).map(y => getYearDisplayText(y)).join(', ')}</span>
+            </div>
+          )}
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px' }}>
             Register Now
           </button>
