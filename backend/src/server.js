@@ -16,8 +16,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Trust proxy for rate limiting and CORS to work properly behind reverse proxy
-app.set('trust proxy', true);
+// Configure trust proxy for production deployment
+// In production (Render), trust only the first proxy for security
+// In development, don't trust proxy
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // Trust only the first proxy (Render's load balancer)
+} else {
+  app.set('trust proxy', false); // Don't trust proxy in development
+}
 
 connectDB();
 
