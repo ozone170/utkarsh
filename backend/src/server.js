@@ -91,6 +91,8 @@ const scanLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Configure trust proxy for production deployment
+  trustProxy: process.env.NODE_ENV === 'production',
   // Skip rate limiting for successful requests to avoid blocking legitimate usage
   skip: (_req, res) => res.statusCode < 400,
 });
@@ -106,12 +108,14 @@ const generalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Configure trust proxy for production deployment
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 // Apply general rate limiting to all requests
 app.use('/api/', generalLimiter);
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({ message: 'Utkarsh API is running' });
 });
 
