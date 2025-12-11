@@ -16,6 +16,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for rate limiting and CORS to work properly behind reverse proxy
+app.set('trust proxy', true);
+
 connectDB();
 
 // CORS Configuration - Dynamic origins from environment
@@ -48,13 +51,13 @@ const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.) in development
-    if (!origin && process.env.NODE_ENV === 'development') {
+    // Allow requests with no origin (health checks, direct API calls, mobile apps, etc.)
+    if (!origin) {
       return callback(null, true);
     }
     
-    // In production, also allow requests from Vercel preview deployments
-    if (origin && origin.includes('vercel.app')) {
+    // Allow requests from Vercel preview deployments
+    if (origin.includes('vercel.app')) {
       return callback(null, true);
     }
     
@@ -89,7 +92,7 @@ const scanLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   // Skip rate limiting for successful requests to avoid blocking legitimate usage
-  skip: (req, res) => res.statusCode < 400,
+  skip: (_req, res) => res.statusCode < 400,
 });
 
 // General API rate limiting
