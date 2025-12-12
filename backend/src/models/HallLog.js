@@ -13,5 +13,8 @@ const hallLogSchema = new mongoose.Schema({
 hallLogSchema.index({ userId: 1, exitTime: 1 }); // For finding open logs
 hallLogSchema.index({ hallId: 1, date: 1 }); // For hall occupancy by date
 hallLogSchema.index({ date: 1, entryTime: -1 }); // For daily reports
+// Activity API optimization indexes
+hallLogSchema.index({ userId: 1, date: 1, entryTime: -1 }); // For user activity queries
+hallLogSchema.index({ userId: 1, entryTime: -1 }); // For user activity without date filter
 
 export default mongoose.model('HallLog', hallLogSchema);

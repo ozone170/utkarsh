@@ -38,7 +38,11 @@ const auditLogSchema = new mongoose.Schema({
       'PHOTO_UPLOAD',
       'PHOTO_REMOVE',
       'CERTIFICATE_GENERATED',
-      'BULK_CERTIFICATES_GENERATED'
+      'BULK_CERTIFICATES_GENERATED',
+      'VIEW_USER_ACTIVITY',
+      'VOLUNTEER_ASSIGN_HALL',
+      'VOLUNTEER_UNASSIGN_HALL',
+      'BULK_UPLOAD_STUDENTS'
     ]
   },
   resource: { 

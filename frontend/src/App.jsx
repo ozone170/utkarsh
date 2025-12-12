@@ -14,6 +14,7 @@ import FoodClaimsPage from './pages/FoodClaimsPage';
 import VolunteersListPage from './pages/VolunteersListPage';
 import ProfilePage from './pages/ProfilePage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import ActivityPage from './pages/ActivityPage';
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
 
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/change-password" element={<ChangePasswordPage />} />
+          <Route path="/admin/activity/:userId" element={<ActivityPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

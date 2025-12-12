@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer, getAllStudents, createStudent, updateStudent, deleteStudent, getFoodClaims, exportStudents, exportFoodLogs, bulkUploadStudents, downloadTemplate, getAllUsers } from '../controllers/adminController.js';
+import { getOverviewStats, getHallOccupancy, createVolunteer, getVolunteers, updateVolunteer, deleteVolunteer, getAllStudents, createStudent, updateStudent, deleteStudent, getFoodClaims, exportStudents, exportFoodLogs, bulkUploadStudents, downloadTemplate, getAllUsers, getUserActivity, getUserActivityTimeline, assignVolunteerHall, getVolunteerDetails, exportUserActivity } from '../controllers/adminController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 
@@ -42,5 +42,15 @@ router.get('/download/template', authMiddleware, roleMiddleware('ADMIN'), downlo
 
 // User management routes
 router.get('/users', authMiddleware, roleMiddleware('ADMIN'), getAllUsers);
+
+// Activity management routes
+router.get('/users/:userId/activity', authMiddleware, roleMiddleware('ADMIN'), getUserActivity);
+router.get('/users/:userId/activity/timeline', authMiddleware, roleMiddleware('ADMIN'), getUserActivityTimeline);
+router.get('/users/:userId/activity/export', authMiddleware, roleMiddleware('ADMIN'), exportUserActivity);
+router.get('/volunteers/:volunteerId/activity', authMiddleware, roleMiddleware('ADMIN'), getUserActivity);
+
+// Volunteer assignment routes
+router.put('/volunteers/:volunteerId/assign', authMiddleware, roleMiddleware('ADMIN'), assignVolunteerHall);
+router.get('/volunteers/:volunteerId/details', authMiddleware, roleMiddleware('ADMIN'), getVolunteerDetails);
 
 export default router;

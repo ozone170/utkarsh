@@ -345,6 +345,23 @@ function RegisteredStudentsPage() {
                   {/* Action Buttons */}
                   <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button 
+                      onClick={() => navigate(`/admin/activity/${student._id}`)} 
+                      className="btn" 
+                      style={{ 
+                        flex: 1, 
+                        padding: '10px', 
+                        fontSize: '14px', 
+                        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
+                        color: 'white',
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '6px' 
+                      }}
+                    >
+                      📊 Activity
+                    </button>
+                    <button 
                       onClick={() => downloadStudentCard(student)} 
                       className="btn btn-primary" 
                       style={{ flex: 1, padding: '10px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}

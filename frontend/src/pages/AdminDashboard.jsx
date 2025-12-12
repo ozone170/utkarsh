@@ -460,6 +460,20 @@ function AdminDashboard() {
                     <td>
                       <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                         <button 
+                          onClick={() => navigate(`/admin/activity/${volunteer._id}`)} 
+                          className="btn touchable" 
+                          style={{ 
+                            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
+                            color: 'white', 
+                            padding: '6px 12px', 
+                            fontSize: '12px', 
+                            minHeight: '32px',
+                            border: 'none'
+                          }}
+                        >
+                          📊 Activity
+                        </button>
+                        <button 
                           onClick={() => startEditVolunteer(volunteer)} 
                           className="btn btn-secondary touchable" 
                           style={{ padding: '6px 12px', fontSize: '12px', minHeight: '32px' }}

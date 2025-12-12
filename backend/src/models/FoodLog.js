@@ -7,5 +7,7 @@ const foodLogSchema = new mongoose.Schema({
 });
 
 foodLogSchema.index({ userId: 1, date: 1 }, { unique: true });
+// Activity API optimization indexes
+foodLogSchema.index({ userId: 1, time: -1 }); // For user activity queries
 
 export default mongoose.model('FoodLog', foodLogSchema);
