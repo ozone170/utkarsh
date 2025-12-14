@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import ScannerHallPage from '../pages/ScannerHallPage';
 import ScannerFoodPage from '../pages/ScannerFoodPage';
 import axios from '../api/axios';
 
 function ScannerRouter() {
-  const { user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +74,7 @@ function ScannerRouter() {
     }}>
       <div className="container">
         <h1>🔧 Scanner Debug Mode</h1>
-        <div className="card" style={{ marginBottom: '20px' }} style={{ background: '#667eea' }} >
+        <div className="card" style={{ marginBottom: '20px', background: '#667eea' }}>
           <h3>User Assignment Info:</h3>
           <p><strong>Hall Name:</strong> {assignedHall.name}</p>
           <p><strong>Hall Code:</strong> {assignedHall.code}</p>
