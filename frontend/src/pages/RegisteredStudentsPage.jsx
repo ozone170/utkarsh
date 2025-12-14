@@ -7,6 +7,7 @@ import StudentFormModal from '../components/StudentFormModal';
 
 function RegisteredStudentsPage() {
   const navigate = useNavigate();
+  // 🛠️ FIX: Safe initial state
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,9 +23,26 @@ function RegisteredStudentsPage() {
     setLoading(true);
     try {
       const response = await axios.get('/api/admin/students');
-      setStudents(response.data);
+      
+      // 🛠️ FIX: Normalize student data to prevent undefined field access
+      const normalizedStudents = (response.data || []).map(student => ({
+        ...student,
+        name: student.name || "",
+        email: student.email || "",
+        eventId: student.eventId || "",
+        branch: student.branch || student.program || "MBA", // Fallback to program or MBA
+        program: student.program || "MBA",
+        section: student.section || "",
+        phone: student.phone || "",
+        gender: student.gender || "",
+        year: student.year || 1
+      }));
+      
+      setStudents(normalizedStudents);
     } catch (err) {
       console.error('Failed to fetch students', err);
+      // 🛠️ FIX: Set empty array on error to prevent crashes
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -36,12 +54,35 @@ function RegisteredStudentsPage() {
     return response.data;
   };
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.eventId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.branch.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 🛠️ FIX: Defensive filtering to handle undefined fields with error resilience
+  const filteredStudents = (() => {
+    try {
+      if (!Array.isArray(students)) return [];
+      
+      return students.filter(student => {
+        try {
+          // Create a searchable text string with safe field access
+          const searchableText = `
+            ${student?.name || ""}
+            ${student?.email || ""}
+            ${student?.eventId || ""}
+            ${student?.branch || ""}
+            ${student?.program || ""}
+            ${student?.section || ""}
+            ${student?.phone || ""}
+          `.toLowerCase();
+          
+          return searchableText.includes((searchTerm || "").toLowerCase());
+        } catch (filterError) {
+          console.warn('Error filtering student:', student, filterError);
+          return false; // Exclude problematic students from results
+        }
+      });
+    } catch (error) {
+      console.error('Error in student filtering:', error);
+      return []; // Return empty array if filtering completely fails
+    }
+  })();
 
   const handleUpdateStudent = async (e) => {
     e.preventDefault();
@@ -111,7 +152,9 @@ function RegisteredStudentsPage() {
         URL.revokeObjectURL(svgUrl);
         
         const link = document.createElement('a');
-        link.download = `${student.name.replace(/\s+/g, '_')}_ID_Card.png`;
+        // 🛠️ FIX: Safe filename generation
+        const safeName = (student.name || student.eventId || 'Student').replace(/\s+/g, '_');
+        link.download = `${safeName}_ID_Card.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       }
@@ -307,18 +350,20 @@ function RegisteredStudentsPage() {
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}>
                       <div style={{ marginBottom: '16px' }}>
-                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>{student.name}</div>
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>
+                          {student.name || 'Unnamed Student'}
+                        </div>
                         <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: '600' }}>
-                          ID: {student.eventId}
+                          ID: {student.eventId || 'No ID'}
                         </div>
                       </div>
 
                       <div style={{ display: 'grid', gap: '10px', marginBottom: '16px', fontSize: '13px', color: '#1f2937' }}>
-                        <div><strong>Email:</strong> {student.email}</div>
-                        <div><strong>Phone:</strong> {student.phone}</div>
+                        <div><strong>Email:</strong> {student.email || 'No email'}</div>
+                        <div><strong>Phone:</strong> {student.phone || 'No phone'}</div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                          <div><strong>Branch:</strong> MBA</div>
-                          <div><strong>Year:</strong> 1st Year</div>
+                          <div><strong>Program:</strong> {student.program || 'MBA'}</div>
+                          <div><strong>Year:</strong> {student.year ? `${student.year}${student.year === 1 ? 'st' : student.year === 2 ? 'nd' : student.year === 3 ? 'rd' : 'th'} Year` : '1st Year'}</div>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                           <div><strong>Gender:</strong> {student.gender || 'N/A'}</div>
