@@ -200,7 +200,7 @@ function RegisteredStudentsPage() {
               </button>
             )}
             <button 
-              onClick={() => navigate(isAdmin ? '/admin' : '/scanner/hall')} 
+              onClick={() => navigate(isAdmin ? '/admin' : '/scanner')} 
               className="btn" 
               style={{ background: 'white', color: 'var(--primary)' }}
             >

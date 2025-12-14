@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ScannerHallPage from './pages/ScannerHallPage';
 import ScannerFoodPage from './pages/ScannerFoodPage';
+import ScannerRouter from './components/ScannerRouter';
 import ScanResultPage from './pages/ScanResultPage';
 import HallOccupancyPage from './pages/HallOccupancyPage';
 import RegisteredStudentsPage from './pages/RegisteredStudentsPage';
@@ -27,7 +28,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/scanner" element={<ScannerHallPage />} />
+          <Route path="/scanner" element={<ScannerRouter />} />
           <Route path="/scanner/hall" element={<ScannerHallPage />} />
           <Route path="/scanner/food" element={<ScannerFoodPage />} />
           <Route path="/scan-result" element={<ScanResultPage />} />

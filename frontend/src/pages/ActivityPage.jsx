@@ -5,10 +5,12 @@ import Navbar from '../components/Navbar';
 import ActivityTimeline from '../components/Activity/ActivityTimeline';
 import ActivityTable from '../components/Activity/ActivityTable';
 import ActivityFilters from '../components/Activity/ActivityFilters';
+import { useAuth } from '../context/AuthContext';
 
 function ActivityPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [user, setUser] = useState(null);
   const [activities, setActivities] = useState([]);
   const [timeline, setTimeline] = useState([]);
@@ -182,11 +184,19 @@ function ActivityPage() {
                 📥 Export CSV
               </button>
               <button 
-                onClick={() => navigate('/admin')} 
+                onClick={() => {
+                  if (currentUser?.role === 'ADMIN') {
+                    navigate('/admin');
+                  } else if (currentUser?.role === 'VOLUNTEER') {
+                    navigate('/volunteer/students');
+                  } else {
+                    navigate('/scanner/hall');
+                  }
+                }} 
                 className="btn" 
                 style={{ background: 'white', color: 'var(--primary)' }}
               >
-                ← Dashboard
+                ← {currentUser?.role === 'ADMIN' ? 'Dashboard' : currentUser?.role === 'VOLUNTEER' ? 'Back to Students' : 'Back to Scanner'}
               </button>
             </div>
           </div>

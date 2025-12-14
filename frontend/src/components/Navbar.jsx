@@ -100,7 +100,7 @@ function Navbar() {
           {(user?.role === "SCANNER" || user?.role === "VOLUNTEER") && (
             <>
               <button
-                onClick={() => handleNavClick("/scanner/hall")}
+                onClick={() => handleNavClick("/scanner")}
                 className="navbar-link"
               >
                 Scan
