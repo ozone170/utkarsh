@@ -98,12 +98,22 @@ function Navbar() {
           )}
 
           {(user?.role === "SCANNER" || user?.role === "VOLUNTEER") && (
-            <button
-              onClick={() => handleNavClick("/scanner/hall")}
-              className="navbar-link"
-            >
-              Scan
-            </button>
+            <>
+              <button
+                onClick={() => handleNavClick("/scanner/hall")}
+                className="navbar-link"
+              >
+                Scan
+              </button>
+              {user?.role === "VOLUNTEER" && (
+                <button
+                  onClick={() => handleNavClick("/volunteer/students")}
+                  className="navbar-link"
+                >
+                  Registered Students
+                </button>
+              )}
+            </>
           )}
 
           {user && (

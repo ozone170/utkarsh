@@ -30,7 +30,7 @@ router.post('/volunteers', authMiddleware, roleMiddleware('ADMIN'), createVolunt
 router.get('/volunteers', authMiddleware, roleMiddleware('ADMIN'), getVolunteers);
 router.put('/volunteers/:volunteerId', authMiddleware, roleMiddleware('ADMIN'), updateVolunteer);
 router.delete('/volunteers/:volunteerId', authMiddleware, roleMiddleware('ADMIN'), deleteVolunteer);
-router.get('/students', authMiddleware, roleMiddleware('ADMIN'), getAllStudents);
+router.get('/students', authMiddleware, roleMiddleware(['ADMIN', 'VOLUNTEER']), getAllStudents);
 router.post('/students', authMiddleware, roleMiddleware('ADMIN'), createStudent);
 router.put('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), updateStudent);
 router.delete('/students/:studentId', authMiddleware, roleMiddleware('ADMIN'), deleteStudent);
@@ -43,10 +43,10 @@ router.get('/download/template', authMiddleware, roleMiddleware('ADMIN'), downlo
 // User management routes
 router.get('/users', authMiddleware, roleMiddleware('ADMIN'), getAllUsers);
 
-// Activity management routes
-router.get('/users/:userId/activity', authMiddleware, roleMiddleware('ADMIN'), getUserActivity);
-router.get('/users/:userId/activity/timeline', authMiddleware, roleMiddleware('ADMIN'), getUserActivityTimeline);
-router.get('/users/:userId/activity/export', authMiddleware, roleMiddleware('ADMIN'), exportUserActivity);
+// Activity management routes - Allow both ADMIN and VOLUNTEER access
+router.get('/users/:userId/activity', authMiddleware, roleMiddleware(['ADMIN', 'VOLUNTEER']), getUserActivity);
+router.get('/users/:userId/activity/timeline', authMiddleware, roleMiddleware(['ADMIN', 'VOLUNTEER']), getUserActivityTimeline);
+router.get('/users/:userId/activity/export', authMiddleware, roleMiddleware(['ADMIN', 'VOLUNTEER']), exportUserActivity);
 router.get('/volunteers/:volunteerId/activity', authMiddleware, roleMiddleware('ADMIN'), getUserActivity);
 
 // Volunteer assignment routes

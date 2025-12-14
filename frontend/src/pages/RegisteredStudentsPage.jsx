@@ -4,9 +4,16 @@ import { QRCodeSVG } from 'qrcode.react';
 import axios from '../api/axios';
 import Navbar from '../components/Navbar';
 import StudentFormModal from '../components/StudentFormModal';
+import { useAuth } from '../context/AuthContext';
 
 function RegisteredStudentsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Check if user is admin (has full access) or volunteer (view-only)
+  const isAdmin = user?.role === 'ADMIN';
+  const isVolunteer = user?.role === 'VOLUNTEER';
+  
   // 🛠️ FIX: Safe initial state
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -169,33 +176,51 @@ function RegisteredStudentsPage() {
       <Navbar />
       <div className="container" style={{ paddingTop: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
-          <h1 style={{ fontSize: '36px', color: 'white' }}>🎓 Registered Students</h1>
+          <div>
+            <h1 style={{ fontSize: '36px', color: 'white' }}>🎓 Registered Students</h1>
+            {isVolunteer && (
+              <p style={{ color: 'rgba(255,255,255,0.8)', margin: '8px 0 0 0', fontSize: '16px' }}>
+                View student information and access activity data
+              </p>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {/* Only show Add Student button for admins */}
+            {isAdmin && (
+              <button 
+                onClick={() => setShowAddModal(true)} 
+                className="btn btn-primary"
+                style={{ 
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                }}
+              >
+                ➕ Add Student
+              </button>
+            )}
             <button 
-              onClick={() => setShowAddModal(true)} 
-              className="btn btn-primary"
-              style={{ 
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-              }}
+              onClick={() => navigate(isAdmin ? '/admin' : '/scanner/hall')} 
+              className="btn" 
+              style={{ background: 'white', color: 'var(--primary)' }}
             >
-              ➕ Add Student
-            </button>
-            <button onClick={() => navigate('/admin')} className="btn" style={{ background: 'white', color: 'var(--primary)' }}>
-              ← Dashboard
+              ← {isAdmin ? 'Dashboard' : 'Back to Scan'}
             </button>
           </div>
         </div>
 
-        <StudentFormModal 
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onSubmit={handleAddStudent}
-        />
+        {/* Only show Add Student modal for admins */}
+        {isAdmin && (
+          <StudentFormModal 
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSubmit={handleAddStudent}
+          />
+        )}
 
       <div className="card">
-        {editingStudent && (
+        {/* Only show edit form for admins */}
+        {isAdmin && editingStudent && (
           <form onSubmit={handleUpdateStudent} style={{ marginBottom: '24px', padding: '20px', background: '#fff3cd', borderRadius: '12px', border: '2px solid #ffc107' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3>Edit Student Details</h3>
@@ -387,13 +412,13 @@ function RegisteredStudentsPage() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons - Different for Admin vs Volunteer */}
                   <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button 
                       onClick={() => navigate(`/admin/activity/${student._id}`)} 
                       className="btn" 
                       style={{ 
-                        flex: 1, 
+                        flex: isVolunteer ? 1 : 1, 
                         padding: '10px', 
                         fontSize: '14px', 
                         background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
@@ -409,24 +434,38 @@ function RegisteredStudentsPage() {
                     <button 
                       onClick={() => downloadStudentCard(student)} 
                       className="btn btn-primary" 
-                      style={{ flex: 1, padding: '10px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      style={{ 
+                        flex: isVolunteer ? 1 : 1, 
+                        padding: '10px', 
+                        fontSize: '14px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '6px' 
+                      }}
                     >
                       ⬇️ Download
                     </button>
-                    <button 
-                      onClick={() => setEditingStudent(student)} 
-                      className="btn btn-secondary" 
-                      style={{ flex: 1, padding: '10px', fontSize: '14px' }}
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteStudent(student._id)} 
-                      className="btn" 
-                      style={{ background: 'var(--danger)', color: 'white', padding: '10px', fontSize: '14px' }}
-                    >
-                      🗑️
-                    </button>
+                    
+                    {/* Admin-only buttons */}
+                    {isAdmin && (
+                      <>
+                        <button 
+                          onClick={() => setEditingStudent(student)} 
+                          className="btn btn-secondary" 
+                          style={{ flex: 1, padding: '10px', fontSize: '14px' }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteStudent(student._id)} 
+                          className="btn" 
+                          style={{ background: 'var(--danger)', color: 'white', padding: '10px', fontSize: '14px' }}
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

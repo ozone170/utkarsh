@@ -36,6 +36,9 @@ function App() {
           <Route path="/admin/halls" element={<HallsListPage />} />
           <Route path="/admin/food-claims" element={<FoodClaimsPage />} />
           <Route path="/admin/volunteers" element={<VolunteersListPage />} />
+          
+          {/* Volunteer Routes */}
+          <Route path="/volunteer/students" element={<RegisteredStudentsPage />} />
 
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/change-password" element={<ChangePasswordPage />} />
