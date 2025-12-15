@@ -20,6 +20,8 @@ function RegisteredStudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [bulkDownloadProgress, setBulkDownloadProgress] = useState({ isDownloading: false, current: 0, total: 0 });
+  const [selectedStudents, setSelectedStudents] = useState(new Set());
   const cardRefs = useRef({});
 
   useEffect(() => {
@@ -171,6 +173,268 @@ function RegisteredStudentsPage() {
     }
   };
 
+  const downloadAllIDCards = async () => {
+    if (filteredStudents.length === 0) {
+      alert('No students to download ID cards for.');
+      return;
+    }
+
+    if (!window.confirm(`This will download ${filteredStudents.length} ID cards as a ZIP file. This may take a few minutes. Continue?`)) {
+      return;
+    }
+
+    setBulkDownloadProgress({ isDownloading: true, current: 0, total: filteredStudents.length });
+
+    try {
+      // Dynamically import JSZip
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      
+      let successCount = 0;
+      let failedStudents = [];
+
+      for (let i = 0; i < filteredStudents.length; i++) {
+        const student = filteredStudents[i];
+        setBulkDownloadProgress({ isDownloading: true, current: i + 1, total: filteredStudents.length });
+
+        try {
+          const cardElement = cardRefs.current[student._id];
+          if (!cardElement) {
+            failedStudents.push(student.name || student.eventId);
+            continue;
+          }
+
+          // Convert SVG to Canvas (same logic as single download)
+          const svgElement = cardElement.querySelector('svg');
+          if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const svgUrl = URL.createObjectURL(svgBlob);
+            
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+              img.src = svgUrl;
+            });
+            
+            const qrCanvas = document.createElement('canvas');
+            qrCanvas.width = 180;
+            qrCanvas.height = 180;
+            const ctx = qrCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 180, 180);
+            
+            const qrWrapper = svgElement.parentElement;
+            const originalSVG = svgElement;
+            qrWrapper.replaceChild(qrCanvas, svgElement);
+            
+            const html2canvas = (await import('html2canvas')).default;
+            const canvas = await html2canvas(cardElement, {
+              scale: 2,
+              backgroundColor: '#ffffff',
+              logging: false,
+              useCORS: true,
+              allowTaint: true
+            });
+            
+            qrWrapper.replaceChild(originalSVG, qrCanvas);
+            URL.revokeObjectURL(svgUrl);
+            
+            // Convert canvas to blob and add to zip
+            const imageBlob = await new Promise(resolve => {
+              canvas.toBlob(resolve, 'image/png', 0.9);
+            });
+            
+            const safeName = (student.name || student.eventId || 'Student').replace(/\s+/g, '_');
+            zip.file(`${safeName}_ID_Card.png`, imageBlob);
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Failed to process ID card for ${student.name}:`, err);
+          failedStudents.push(student.name || student.eventId);
+        }
+
+        // Small delay to prevent browser freezing
+        if (i % 5 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      if (successCount === 0) {
+        alert('Failed to generate any ID cards. Please try again.');
+        return;
+      }
+
+      // Generate and download ZIP file
+      setBulkDownloadProgress({ isDownloading: true, current: filteredStudents.length, total: filteredStudents.length });
+      
+      const zipBlob = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 }
+      });
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `UTKARSH_Student_ID_Cards_${new Date().toISOString().split('T')[0]}.zip`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      // Show completion message
+      let message = `Successfully downloaded ${successCount} ID cards!`;
+      if (failedStudents.length > 0) {
+        message += `\n\nFailed to generate ${failedStudents.length} cards for: ${failedStudents.slice(0, 5).join(', ')}`;
+        if (failedStudents.length > 5) {
+          message += ` and ${failedStudents.length - 5} others`;
+        }
+      }
+      alert(message);
+
+    } catch (err) {
+      console.error('Bulk download failed:', err);
+      alert('Failed to create ZIP file. Please try again.');
+    } finally {
+      setBulkDownloadProgress({ isDownloading: false, current: 0, total: 0 });
+    }
+  };
+
+  const handleSelectStudent = (studentId) => {
+    const newSelected = new Set(selectedStudents);
+    if (newSelected.has(studentId)) {
+      newSelected.delete(studentId);
+    } else {
+      newSelected.add(studentId);
+    }
+    setSelectedStudents(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedStudents.size === filteredStudents.length) {
+      setSelectedStudents(new Set());
+    } else {
+      setSelectedStudents(new Set(filteredStudents.map(s => s._id)));
+    }
+  };
+
+  const downloadSelectedIDCards = async () => {
+    const selectedStudentsList = filteredStudents.filter(s => selectedStudents.has(s._id));
+    
+    if (selectedStudentsList.length === 0) {
+      alert('Please select students to download ID cards for.');
+      return;
+    }
+
+    if (!window.confirm(`This will download ${selectedStudentsList.length} selected ID cards as a ZIP file. Continue?`)) {
+      return;
+    }
+
+    setBulkDownloadProgress({ isDownloading: true, current: 0, total: selectedStudentsList.length });
+
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      
+      let successCount = 0;
+      let failedStudents = [];
+
+      for (let i = 0; i < selectedStudentsList.length; i++) {
+        const student = selectedStudentsList[i];
+        setBulkDownloadProgress({ isDownloading: true, current: i + 1, total: selectedStudentsList.length });
+
+        try {
+          const cardElement = cardRefs.current[student._id];
+          if (!cardElement) {
+            failedStudents.push(student.name || student.eventId);
+            continue;
+          }
+
+          const svgElement = cardElement.querySelector('svg');
+          if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const svgUrl = URL.createObjectURL(svgBlob);
+            
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+              img.src = svgUrl;
+            });
+            
+            const qrCanvas = document.createElement('canvas');
+            qrCanvas.width = 180;
+            qrCanvas.height = 180;
+            const ctx = qrCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 180, 180);
+            
+            const qrWrapper = svgElement.parentElement;
+            const originalSVG = svgElement;
+            qrWrapper.replaceChild(qrCanvas, svgElement);
+            
+            const html2canvas = (await import('html2canvas')).default;
+            const canvas = await html2canvas(cardElement, {
+              scale: 2,
+              backgroundColor: '#ffffff',
+              logging: false,
+              useCORS: true,
+              allowTaint: true
+            });
+            
+            qrWrapper.replaceChild(originalSVG, qrCanvas);
+            URL.revokeObjectURL(svgUrl);
+            
+            const imageBlob = await new Promise(resolve => {
+              canvas.toBlob(resolve, 'image/png', 0.9);
+            });
+            
+            const safeName = (student.name || student.eventId || 'Student').replace(/\s+/g, '_');
+            zip.file(`${safeName}_ID_Card.png`, imageBlob);
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Failed to process ID card for ${student.name}:`, err);
+          failedStudents.push(student.name || student.eventId);
+        }
+
+        if (i % 5 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      if (successCount === 0) {
+        alert('Failed to generate any ID cards. Please try again.');
+        return;
+      }
+
+      const zipBlob = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 }
+      });
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `UTKARSH_Selected_ID_Cards_${new Date().toISOString().split('T')[0]}.zip`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      let message = `Successfully downloaded ${successCount} selected ID cards!`;
+      if (failedStudents.length > 0) {
+        message += `\n\nFailed to generate ${failedStudents.length} cards.`;
+      }
+      alert(message);
+
+      // Clear selection after successful download
+      setSelectedStudents(new Set());
+
+    } catch (err) {
+      console.error('Selected download failed:', err);
+      alert('Failed to create ZIP file. Please try again.');
+    } finally {
+      setBulkDownloadProgress({ isDownloading: false, current: 0, total: 0 });
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -187,17 +451,45 @@ function RegisteredStudentsPage() {
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {/* Only show Add Student button for admins */}
             {isAdmin && (
-              <button 
-                onClick={() => setShowAddModal(true)} 
-                className="btn btn-primary"
-                style={{ 
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-                }}
-              >
-                ➕ Add Student
-              </button>
+              <>
+                <button 
+                  onClick={() => setShowAddModal(true)} 
+                  className="btn btn-primary"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                  }}
+                >
+                  ➕ Add Student
+                </button>
+                <button 
+                  onClick={downloadSelectedIDCards} 
+                  className="btn"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: 'white',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                  }}
+                  disabled={loading || selectedStudents.size === 0}
+                >
+                  📋 Download Selected ({selectedStudents.size})
+                </button>
+                <button 
+                  onClick={downloadAllIDCards} 
+                  className="btn"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    color: 'white',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                  }}
+                  disabled={loading || filteredStudents.length === 0}
+                >
+                  📦 Download All ID Cards
+                </button>
+              </>
             )}
             <button 
               onClick={() => navigate(isAdmin ? '/admin' : '/scanner')} 
@@ -287,6 +579,39 @@ function RegisteredStudentsPage() {
           />
         </div>
 
+        {/* Bulk Download Progress */}
+        {bulkDownloadProgress.isDownloading && (
+          <div className="card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', color: 'white' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ fontSize: '32px' }}>📦</div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Generating ID Cards...</h3>
+                <p style={{ margin: '4px 0 0 0', opacity: 0.9 }}>
+                  Processing {bulkDownloadProgress.current} of {bulkDownloadProgress.total} students
+                </p>
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.2)', 
+                  borderRadius: '10px', 
+                  height: '8px', 
+                  marginTop: '8px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ 
+                    background: 'white', 
+                    height: '100%', 
+                    borderRadius: '10px',
+                    width: `${(bulkDownloadProgress.current / bulkDownloadProgress.total) * 100}%`,
+                    transition: 'width 0.3s ease'
+                  }}></div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                {Math.round((bulkDownloadProgress.current / bulkDownloadProgress.total) * 100)}%
+              </div>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-light)' }}>
             Loading...
@@ -299,14 +624,69 @@ function RegisteredStudentsPage() {
         ) : (
           <>
             <div style={{ marginBottom: '16px', padding: '12px', background: 'var(--light)', borderRadius: '8px' }}>
-              <strong>Total Students: {filteredStudents.length}</strong>
-              {searchTerm && <span style={{ marginLeft: '12px', color: 'var(--text-light)' }}>(filtered from {students.length})</span>}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <strong>Total Students: {filteredStudents.length}</strong>
+                  {searchTerm && <span style={{ marginLeft: '12px', color: 'var(--text-light)' }}>(filtered from {students.length})</span>}
+                </div>
+                {isAdmin && filteredStudents.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.size === filteredStudents.length && filteredStudents.length > 0}
+                        onChange={handleSelectAll}
+                        style={{ transform: 'scale(1.2)' }}
+                      />
+                      <span style={{ fontWeight: '600' }}>
+                        {selectedStudents.size === filteredStudents.length ? 'Deselect All' : 'Select All'}
+                      </span>
+                    </label>
+                    {selectedStudents.size > 0 && (
+                      <span style={{ 
+                        background: '#3b82f6', 
+                        color: 'white', 
+                        padding: '4px 8px', 
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>
+                        {selectedStudents.size} selected
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Card View */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
               {filteredStudents.map((student) => (
                 <div key={student._id} style={{ position: 'relative' }}>
+                  {/* Selection Checkbox - Only for admins */}
+                  {isAdmin && (
+                    <div style={{ 
+                      position: 'absolute', 
+                      top: '8px', 
+                      left: '8px', 
+                      zIndex: 10,
+                      background: 'rgba(255,255,255,0.9)',
+                      borderRadius: '50%',
+                      padding: '8px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.has(student._id)}
+                        onChange={() => handleSelectStudent(student._id)}
+                        style={{ 
+                          transform: 'scale(1.3)',
+                          cursor: 'pointer'
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   {/* ID Card */}
                   <div 
                     ref={el => cardRefs.current[student._id] = el}
@@ -317,9 +697,11 @@ function RegisteredStudentsPage() {
                       backgroundRepeat: 'no-repeat',
                       borderRadius: '16px', 
                       padding: '24px',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                      boxShadow: selectedStudents.has(student._id) ? '0 10px 40px rgba(59, 130, 246, 0.4)' : '0 10px 30px rgba(0,0,0,0.2)',
                       position: 'relative',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      border: selectedStudents.has(student._id) ? '3px solid #3b82f6' : 'none',
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     {/* Overlay for better text readability */}
